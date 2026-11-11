@@ -134,7 +134,7 @@
 <div id="ov">
   <h1>LAST CHANCE</h1><p style="letter-spacing:3px;color:#9fb092;margin:0 0 6px">SURVIVE. ADAPT. ENDURE.</p>
   <p>Şehir düştü. Elinde bir tabanca ve sınırlı cephane var. Dalgalar halinde gelen zombilere karşı hayatta kal.</p>
-  <p><b>WASD / Oklar</b>: hareket &nbsp; <b>Fare</b>: nişan &nbsp; <b>Tıkla</b>: ateş<br><b>R</b>: şarjör değiştir &nbsp; <b>Shift</b>: koş &nbsp; <b>C</b>: yerde kay<br><b>V</b>: malzeme / silah dükkânı &nbsp; <b>L</b>: kuşanma &nbsp; <b>F</b>: yapıyı yükselt / yatak &nbsp; <b>G</b>: yapıyı kaldır<br><b>Y</b>: HUD gizle &nbsp; <b>1-0, Q/E, tekerlek</b>: silah seç<br><b>G</b>: Yakındaki yapıyı kaldır / yoksa el bombası &nbsp; <b>X</b>: Enerji içeceği &nbsp; <b>H</b>: Molotof &nbsp; <b>J</b>: C4 &nbsp; <b>Z</b>: Lock on (aç/kapa)<br><b>M</b>: Ses / Ayarlar<br>Zombileri öldürerek para kazan, silah satın al / sat. Sonsuz haritada hayatta kal.</p>
+  <p><b>WASD / Oklar</b>: hareket &nbsp; <b>Fare</b>: nişan &nbsp; <b>Tıkla</b>: ateş<br><b>R</b>: şarjör değiştir &nbsp; <b>Shift</b>: koş &nbsp; <b>C</b>: yerde kay<br><b>V</b>: malzeme / silah dükkânı &nbsp; <b>L</b>: kuşanma &nbsp; <b>F</b>: yapıyı yükselt / yatak &nbsp; <b>G</b>: yapıyı kaldır<br><b>Y</b>: HUD gizle &nbsp; <b>1-0, Q/E, tekerlek</b>: silah seç<br><b>G</b>: Yakındaki yapıyı kaldır / yoksa el bombası &nbsp; <b>X</b>: Enerji içeceği &nbsp; <b>H</b>: Molotof &nbsp; <b>J</b>: C4 kur / patlat &nbsp; <b>Z</b>: Lock on (aç/kapa)<br><b>M</b>: Ses / Ayarlar<br>Zombileri öldürerek para kazan, silah satın al / sat. Sonsuz haritada hayatta kal.</p>
   <p id="sonuc"></p>
   <div id="zor"></div><p id="zacik"></p>
   <button id="btn">Başla</button>
@@ -195,7 +195,7 @@ let p,zs,bs,items,parts,wave,score,kills,running,lastT,spawnLeft,spawnTimer,wave
 let damageLog=[];
 
 function reset(){
-  p={x:0,y:0,r:14,hp:100,maxHp:100,baseMaxHp:100,stam:100,money:Z.bas,g:0,reload:0,cd:0,ang:0,gadgetCd:{grenade:0,molotov:0,c4:0},lockTarget:null,accessories:[],equipped:{},accCap:20,rec:0,kv:0,bleed:0,hunger:100,sleep:100,energy:0,energyTimer:0,energyUseTimes:[]};
+  p={x:0,y:0,r:12,hp:100,maxHp:100,baseMaxHp:100,stam:100,money:Z.bas,g:0,reload:0,cd:0,ang:0,gadgetCd:{grenade:0,molotov:0,c4:0},lockTarget:null,accessories:[],equipped:{},accCap:20,rec:0,kv:0,bleed:0,hunger:100,sleep:100,energy:0,energyTimer:0,energyUseTimes:[]};
   damageLog=[];
   p.guns=WEAPONS.map((w,i)=>({own:i==0,ammo:i==0?w.mag:0,res:i==0?w.mag*3:0}));
   zs=[];bs=[];items=[];parts=[];floats=[];rings=[];devices=[];zones=[];walls=[];turrets=[];ammoMachines=[];healers=[];beds=[];flash=0;buildMode=null;
@@ -266,7 +266,7 @@ function shoot(){
   const baseAng=p.lockTarget?Math.atan2(p.lockTarget.y-p.y,p.lockTarget.x-p.x):Math.atan2(wm.y-p.y,wm.x-p.x);
   for(let i=0;i<w.pel;i++){
     const a=baseAng+(Math.random()-.5)*w.spr*(1+p.rec*2.5),kr=Math.random()<critChance(w);
-    bs.push({x:p.x+Math.cos(baseAng)*22,y:p.y+Math.sin(baseAng)*22,vx:Math.cos(a)*w.hiz,vy:Math.sin(a)*w.hiz,life:w.omur||.9,dmg:w.dmg*playerDamageMultiplier()*(kr?2:1),kr,del:!!w.delici,vurdu:[],renk:kr?'#fff2a0':w.renk,boy:w.boy||2.5,patla:cheats.explosive?(w.patla||72):w.patla,patdmg:(cheats.explosive?Math.max(w.patdmg||0,w.dmg*2,3):w.patdmg)*playerDamageMultiplier()});
+    bs.push({x:p.x,y:p.y,vx:Math.cos(a)*w.hiz,vy:Math.sin(a)*w.hiz,life:w.omur||.9,dmg:w.dmg*playerDamageMultiplier()*(kr?2:1),kr,del:!!w.delici,vurdu:[],renk:kr?'#fff2a0':w.renk,boy:w.boy||2.5,patla:cheats.explosive?(w.patla||72):w.patla,patdmg:(cheats.explosive?Math.max(w.patdmg||0,w.dmg*2,3):w.patdmg)*playerDamageMultiplier()});
   }
   const rc=(RECOIL[w.ad]||.3)*gearStat('recoil');p.rec=Math.min(1,p.rec+rc*.25);p.kv=Math.min(160,p.kv+rc*90);
   soundFx('shot',w);
@@ -340,23 +340,36 @@ function soundFx(kind,w){
 }
 
 function gadgetAt(type){
-  if(!running||shopOpen||konOpen||settingsOpen||p.gadgetCd[type]>0)return;
+  if(!running||shopOpen||konOpen||settingsOpen)return;
+  // C4 iki aşamalı: ilk J kurar, ikinci J manuel patlatır.
+  if(type==='c4'){
+    const planted=devices.find(d=>d.type==='c4'&&d.armed&&!d.done);
+    if(planted){
+      gadgetBlast(planted);
+      planted.done=true;
+      soundFx('select');
+      return;
+    }
+    if(p.gadgetCd.c4>0)return;
+    const cfg={radius:125,damage:10};
+    devices.push({type:'c4',x:p.x,y:p.y,t:Infinity,radius:cfg.radius,damage:cfg.damage,armed:true});
+    p.gadgetCd.c4=cheats.inf?0:10;
+    soundFx('select');
+    floats.push({x:p.x,y:p.y-28,t:'C4 KURULDU • J: PATLAT',life:1.4});
+    return;
+  }
+  if(p.gadgetCd[type]>0)return;
   const cfg={
     grenade:{cool:5,speed:360,fuse:.75,radius:105,damage:7},
-    molotov:{cool:8,speed:330,fuse:.55,radius:78,damage:1.2},
-    c4:{cool:10,fuse:1.35,radius:125,damage:10}
+    molotov:{cool:8,speed:330,fuse:.55,radius:78,damage:1.2}
   }[type];
   p.gadgetCd[type]=cheats.inf?0:cfg.cool;
   const wm=worldMouse();
-  if(type==='c4'){
-    devices.push({type,x:wm.x,y:wm.y,t:cfg.fuse,radius:cfg.radius,damage:cfg.damage});
-  }else{
-    const dx=wm.x-p.x,dy=wm.y-p.y;
-    const dist=Math.hypot(dx,dy)||1;
-    devices.push({type,x:p.x,y:p.y,targetX:wm.x,targetY:wm.y,
-      vx:dx/dist*cfg.speed,vy:dy/dist*cfg.speed,t:cfg.fuse,
-      radius:cfg.radius,damage:cfg.damage});
-  }
+  const dx=wm.x-p.x,dy=wm.y-p.y;
+  const dist=Math.hypot(dx,dy)||1;
+  devices.push({type,x:p.x,y:p.y,targetX:wm.x,targetY:wm.y,
+    vx:dx/dist*cfg.speed,vy:dy/dist*cfg.speed,t:cfg.fuse,
+    radius:cfg.radius,damage:cfg.damage});
   soundFx('select');
 }
 function gadgetBlast(d){
@@ -531,7 +544,7 @@ function update(dt){
 
   // Oyun içi ekipmanlar
   for(const d of devices){
-    d.t-=dt;
+    if(d.type!=='c4')d.t-=dt;
     if(d.type!=='c4'){
       const left=Math.hypot(d.targetX-d.x,d.targetY-d.y);
       const step=Math.min(left,Math.hypot(d.vx,d.vy)*dt);
@@ -612,7 +625,15 @@ function update(dt){
     z.a=a;z.hit-=dt;
     for(const o of zs){if(o!==z){const d=Math.hypot(z.x-o.x,z.y-o.y);
       if(d<z.r+o.r&&d>0){z.x+=(z.x-o.x)/d*20*dt;z.y+=(z.y-o.y)/d*20*dt}}}
-    if(!(z.stun>0)&&Math.hypot(p.x-z.x,p.y-z.y)<p.r+z.r){
+    // Oyuncu hitbox'ı modelin gövdesine göre ayarlanır. Zombiler içeri giremez,
+    // ancak temas mesafesinde hasar vermeye devam eder.
+    const pdx=z.x-p.x,pdy=z.y-p.y,pd=Math.hypot(pdx,pdy);
+    const minDist=p.r+z.r;
+    if(pd<minDist){
+      if(pd>.0001){z.x=p.x+pdx/pd*(minDist+.15);z.y=p.y+pdy/pd*(minDist+.15)}
+      else {const pushAng=Math.random()*6.283;z.x=p.x+Math.cos(pushAng)*(minDist+.15);z.y=p.y+Math.sin(pushAng)*(minDist+.15)}
+    }
+    if(!(z.stun>0)&&pd<=minDist+.5){
       if(!cheats.god){p.hp-=z.dmg*dt*1.6*playerDamageReduction();shake=Math.max(shake,2);flash=.25;p.bleed=Math.min(BLEED_MAX,p.bleed+(BLEED_ADD[z.tur]||1.2)*dt)}
       if(!cheats.god&&Math.random()<.05)burst(p.x,p.y,3,'#a33');
     }
