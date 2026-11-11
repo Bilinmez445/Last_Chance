@@ -1,3 +1,56 @@
+
+Şuradan devam edildi:
+Patlayıcı Mermi Ekleme (5)
+Son soru? Hile menüsüne "Hurda ekle" ve "Hurda çarpanı" ekledin mi?
+Moruk, dürüst olayım: Hayır, son eklediğim hurda sistemi için bu iki hileyi eklediğimi doğrulayamıyorum. Önceki sürümde hile konsolu vardı ama hurda komutları ayrı bir konu.
+
+Eklenmesi gerekenler:
+
+Hurda ekle: Belirtilen miktarda hurda verir.
+
+Hurda çarpanı: Zombilerden ve ganimetlerden kazanılan hurdayı belirtilen katsayıyla artırır.
+
+Yani bunları eklenmiş gibi göstermeyeceğim. Son hurda sisteminin dosyasına eklenmeleri gerekiyor.
+
+ekler misin?
+Eklerim moruk. İki komut da hile menüsünde olacak:
+
+Hurda ekle: İstediğin miktarda hurda verir.
+
+Hurda çarpanı: Hurda kazanımını 2x, 3x, 5x gibi artırır. Ganimet ve zombi ödüllerine uygulanır.
+
+Yalnız son hurda sistemli dosya şu an çalışma alanımda yok. Oyunun en güncel .html veya .txt dosyasını buraya yükle. Mevcut sistemleri bozmadan doğrudan üzerine ekleyip sana .txt olarak vereceğim.
+
+
+Last_Chance_hurda_metal_aksesuar_birlestirme(1).txt
+Belge
+buyur babuş.
+
+48s düşündü
+
+
+
+
+
+
+
+
+Tamam babuş, ikisini de ekledim. 😎
+
+Hurda ekle: Hile panelindeki Ekonomi sekmesinden istediğin miktarı verebilirsin.
+
+Hurda çarpanı: Zombi öldürerek kazandığın hurdaları 0,1x ile 100x arasında ayarlayabilirsin.
+
+Komut desteği: Konsola hurda 500 yazarsan 500 hurda eklenir. scrap 500 da çalışır.
+
+JavaScript sözdizimi kontrolü başarılı
+Last Chance güncellenmiş dosyayı indir (.txt)
+
+Oyun içinde tarayıcı testi yapmadım; kodun sözdizimini kontrol ettim.
+
+
+Last_Chance_hile_hurda_ekle_ve_carpani.txt
+Belge
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -110,6 +163,16 @@
   #mShop{right:28px;top:70px;width:48px;height:48px;font-size:11px}
   #mGren{right:100px;bottom:100px;width:48px;height:48px;font-size:12px}
   #mSlide{right:180px;bottom:28px;width:52px;height:52px;font-size:12px}
+
+  .sh-kart{position:relative;overflow:hidden;background:linear-gradient(145deg,#1b281f 0%,#101712 78%);border:1px solid #35483a;border-top:3px solid var(--renk);border-radius:9px;padding:13px;box-shadow:0 5px 16px rgba(0,0,0,.22);transition:transform .16s,border-color .16s,box-shadow .16s}
+  .sh-kart:hover{transform:translateY(-2px);box-shadow:0 9px 22px rgba(0,0,0,.34);border-color:var(--renk)}
+  .sh-shema{height:76px;background:radial-gradient(ellipse at 50% 45%,#34483a 0%,#1a261e 55%,#111813 100%);border:1px solid #3b5040;border-radius:7px;box-shadow:inset 0 0 18px rgba(0,0,0,.35);margin:5px 0 7px}
+  .sh-shema svg{width:96%;height:62px;filter:drop-shadow(0 3px 3px rgba(0,0,0,.55))}
+  .sh-shema .wood{fill:url(#wood);stroke:#d0a16b;stroke-width:1.2}
+  .sh-shema .metal{fill:url(#steel);stroke:#e0e9df;stroke-width:1.2}
+  .sh-shema .dark{fill:#303d34;stroke:#9cac9f;stroke-width:1.2}
+  .sh-shema .accent{fill:var(--renk);stroke:#f1f4e9;stroke-width:1}
+  .sh-bas b{font-size:17px;letter-spacing:.2px}
 </style>
 </head>
 <body>
@@ -134,7 +197,7 @@
 <div id="ov">
   <h1>LAST CHANCE</h1><p style="letter-spacing:3px;color:#9fb092;margin:0 0 6px">SURVIVE. ADAPT. ENDURE.</p>
   <p>Şehir düştü. Elinde bir tabanca ve sınırlı cephane var. Dalgalar halinde gelen zombilere karşı hayatta kal.</p>
-  <p><b>WASD / Oklar</b>: hareket &nbsp; <b>Fare</b>: nişan &nbsp; <b>Tıkla</b>: ateş<br><b>R</b>: şarjör değiştir &nbsp; <b>Shift</b>: koş &nbsp; <b>C</b>: yerde kay<br><b>V</b>: malzeme / silah dükkânı &nbsp; <b>L</b>: kuşanma &nbsp; <b>F</b>: yapıyı yükselt / yatak &nbsp; <b>G</b>: yapıyı kaldır<br><b>Y</b>: HUD gizle &nbsp; <b>1-0, Q/E, tekerlek</b>: silah seç<br><b>G</b>: Yakındaki yapıyı kaldır / yoksa el bombası &nbsp; <b>X</b>: Enerji içeceği &nbsp; <b>H</b>: Molotof &nbsp; <b>J</b>: C4 kur / patlat &nbsp; <b>Z</b>: Lock on (aç/kapa)<br><b>M</b>: Ses / Ayarlar<br>Zombileri öldürerek para kazan, silah satın al / sat. Sonsuz haritada hayatta kal.</p>
+  <p><b>WASD / Oklar</b>: hareket &nbsp; <b>Fare</b>: nişan &nbsp; <b>Tıkla</b>: ateş<br><b>R</b>: şarjör değiştir &nbsp; <b>Shift</b>: koş &nbsp; <b>C</b>: yerde kay<br><b>V</b>: malzeme / silah dükkânı &nbsp; <b>L</b>: kuşanma &nbsp; <b>F</b>: yapıyı yükselt / yatak &nbsp; <b>G</b>: yapıyı kaldır<br><b>Y</b>: HUD gizle &nbsp; <b>1-0, Q/E, tekerlek</b>: silah seç<br><b>G</b>: Yakındaki yapıyı kaldır / yoksa el bombası &nbsp; <b>X</b>: Enerji içeceği &nbsp; <b>H</b>: Molotof &nbsp; <b>J</b>: C4 kur / patlat &nbsp; <b>Z</b>: Lock on (aç/kapa)<br><b>M</b>: Ses / Ayarlar<br>Zombileri öldürerek hurda metal kazan, silahlarını hurdayla yükselt. Sonsuz haritada hayatta kal.</p>
   <p id="sonuc"></p>
   <div id="zor"></div><p id="zacik"></p>
   <button id="btn">Başla</button>
@@ -144,25 +207,44 @@ const cv=document.getElementById('c'),cx=cv.getContext('2d');
 const W=cv.width,H=cv.height;
 const ov=document.getElementById('ov'),btn=document.getElementById('btn'),sonuc=document.getElementById('sonuc');
 const ZORLUK={
- kolay:{ad:'Kolay',acik:'Yavaş ve zayıf zombiler, bol para. $50 ile başlarsın.',hiz:.85,can:.8,hasar:.6,sayi:.75,para:1.25,drop:.4,bas:50},
+ kolay:{ad:'Kolay',acik:'Yavaş ve zayıf zombiler, bol hurda. $50 başlangıç paran var.',hiz:.85,can:.8,hasar:.6,sayi:.75,para:1.25,drop:.4,bas:50},
  normal:{ad:'Normal',acik:'Dengeli bir hayatta kalma deneyimi.',hiz:1,can:1,hasar:1,sayi:1,para:1,drop:.3,bas:0},
- zor:{ad:'Zor',acik:'Daha hızlı, daha sert ve daha kalabalık. Para daha az.',hiz:1.1,can:1.4,hasar:1.4,sayi:1.3,para:.8,drop:.25,bas:0},
- kabus:{ad:'Kâbus',acik:'Çok sayıda, çok dayanıklı zombi. Para ve cephane kıt.',hiz:1.25,can:2,hasar:2,sayi:1.7,para:.6,drop:.18,bas:0}
+ zor:{ad:'Zor',acik:'Daha hızlı, daha sert ve daha kalabalık. Hurda daha az.',hiz:1.1,can:1.4,hasar:1.4,sayi:1.3,para:.8,drop:.25,bas:0},
+ kabus:{ad:'Kâbus',acik:'Çok sayıda, çok dayanıklı zombi. Hurda ve cephane kıt.',hiz:1.25,can:2,hasar:2,sayi:1.7,para:.6,drop:.18,bas:0}
 };
 let Z=ZORLUK.normal;
 const WEAPONS=[
- {ad:'Tabanca',fiyat:0,mag:12,cd:.18,pel:1,spr:.06,dmg:1,hiz:700,rel:1.3,ses:180,ack:'Dengeli başlangıç silahı.'},
- {ad:'Balta',fiyat:60,melee:true,mag:0,cd:.45,pel:0,spr:0,dmg:3,hiz:0,rel:0,menzil:58,arc:1.9,ses:80,ack:'Geniş yaylı darbe, cephane harcamaz.'},
- {ad:'Çekiç',fiyat:500,melee:true,mag:0,cd:.7,pel:0,spr:0,dmg:7,hiz:0,rel:0,menzil:66,arc:1.25,ses:65,ack:'Ağır ama güçlü tek vuruş.'},
- {ad:'Revolver',fiyat:90,mag:6,cd:.42,pel:1,spr:.03,dmg:3,hiz:900,rel:1.9,ses:130,ack:'Yavaş ama sert vuran altıpatlar.'},
- {ad:'Hafif Makineli',fiyat:130,mag:30,cd:.08,pel:1,spr:.14,dmg:1,hiz:760,rel:1.6,ses:210,ack:'Hızlı ateş, dağınık nişan.'},
- {ad:'Testere',fiyat:220,melee:true,mag:0,cd:.12,pel:0,spr:0,dmg:1,hiz:0,rel:0,menzil:46,arc:1.3,ses:60,ack:'Çok hızlı doğrar, kısa menzil.'},
- {ad:'Pompalı',fiyat:280,mag:6,cd:.75,pel:7,spr:.38,dmg:1,hiz:650,rel:2.2,omur:.35,ses:90,ack:'Yakında yıkıcı, 7 saçma atar.'},
- {ad:'Tüfek',fiyat:400,mag:30,cd:.1,pel:1,spr:.05,dmg:2,hiz:950,rel:1.9,ses:150,ack:'Hızlı, isabetli ve güçlü.'},
- {ad:'Keskin Nişancı',fiyat:550,mag:5,cd:.9,pel:1,spr:.01,dmg:4,hiz:1300,rel:2.0,delici:true,ses:140,ack:'Zombileri delip arkadakini de vurur.'},
- {ad:'Alev Atar',fiyat:750,mag:100,cd:.04,pel:1,spr:.3,dmg:.5,hiz:380,rel:2.6,omur:.45,delici:true,renk:'#ff8a2b',boy:4,ses:50,ack:'Kalabalıkları yakar, kısa menzil.'},
- {ad:'Ağır Makineli',fiyat:900,mag:60,cd:.065,pel:1,spr:.1,dmg:2,hiz:820,rel:2.8,ses:120,ack:'Büyük şarjör, yüksek hasar.'},
- {ad:'Roketatar',fiyat:1500,mag:4,cd:.6,pel:1,spr:.01,dmg:0,hiz:520,rel:2.6,patla:95,patdmg:8,renk:'#ff5a3a',boy:5,ses:70,ack:'Çarptığı yerde alan hasarlı patlama.'}
+ {ad:'Glock 18',model:'pistol',fiyat:0,mag:12,cd:.18,pel:1,spr:.06,dmg:1,hiz:700,rel:1.3,ses:180,ack:'Glock 18 modelinden esinlenen başlangıç tabancası. Oyun dengesi için özellikleri uyarlanmıştır.'},
+ {ad:'Fiskars X27',model:'axe',fiyat:60,melee:true,mag:0,cd:.45,pel:0,spr:0,dmg:3,hiz:0,rel:0,menzil:58,arc:1.9,ses:80,ack:'Fiskars X27 yarma baltası. Oyundaki değerleri denge amacıyla uyarlanmıştır.'},
+ {ad:'Estwing E3-FF4',model:'hammer',fiyat:500,melee:true,mag:0,cd:.7,pel:0,spr:0,dmg:7,hiz:0,rel:0,menzil:66,arc:1.25,ses:65,ack:'Estwing E3-FF4 tipi ağır balyoz. Oyundaki değerleri denge amacıyla uyarlanmıştır.'},
+ {ad:'Colt Python',model:'revolver',fiyat:90,mag:6,cd:.42,pel:1,spr:.03,dmg:3,hiz:900,rel:1.9,ses:130,ack:'Colt Python modelinden esinlenen altıpatlar. Oyun dengesi için özellikleri uyarlanmıştır.'},
+ {ad:'HK MP5',model:'smg',fiyat:130,mag:30,cd:.08,pel:1,spr:.14,dmg:1,hiz:760,rel:1.6,ses:210,ack:'HK MP5 modelinden esinlenen hafif makineli. Oyun dengesi için özellikleri uyarlanmıştır.'},
+ {ad:'STIHL MS 261',model:'chainsaw',fiyat:220,melee:true,mag:0,cd:.12,pel:0,spr:0,dmg:1,hiz:0,rel:0,menzil:46,arc:1.3,ses:60,ack:'STIHL MS 261 modelinden esinlenen motorlu testere. Oyun içi yakın dövüş ekipmanıdır.'},
+ {ad:'Remington 870',model:'shotgun',fiyat:280,mag:6,cd:.75,pel:7,spr:.38,dmg:1,hiz:650,rel:2.2,omur:.35,ses:90,ack:'Remington 870 pompalı tüfek. Oyun dengesi için özellikleri uyarlanmıştır.'},
+ {ad:'M4A1',model:'rifle',fiyat:400,mag:30,cd:.1,pel:1,spr:.05,dmg:2,hiz:950,rel:1.9,ses:150,ack:'M4A1 modelinden esinlenen piyade tüfeği. Oyun dengesi için özellikleri uyarlanmıştır.'},
+ {ad:'Barrett M82',model:'sniper',fiyat:550,mag:5,cd:.9,pel:1,spr:.01,dmg:4,hiz:1300,rel:2.0,delici:true,ses:140,ack:'Barrett M82 modelinden esinlenen keskin nişancı tüfeği. Oyun dengesi için özellikleri uyarlanmıştır.'},
+ {ad:'M2 Flamethrower',model:'flame',fiyat:750,mag:100,cd:.04,pel:1,spr:.3,dmg:.5,hiz:380,rel:2.6,omur:.45,delici:true,renk:'#ff8a2b',boy:4,ses:50,ack:'M2 Flamethrower modelinden esinlenen kurgu ekipman. Oyun içi menzili ve değerleri uyarlanmıştır.'},
+ {ad:'M249 SAW',model:'lmg',fiyat:900,mag:60,cd:.065,pel:1,spr:.1,dmg:2,hiz:820,rel:2.8,ses:120,ack:'M249 SAW modelinden esinlenen hafif makineli. Oyun dengesi için özellikleri uyarlanmıştır.'},
+ {ad:'RPG-7',model:'rocket',fiyat:1500,mag:4,cd:.6,pel:1,spr:.01,dmg:0,hiz:520,rel:2.6,patla:95,patdmg:8,renk:'#ff5a3a',boy:5,ses:70,ack:'RPG-7 modelinden esinlenen kurgu roketatar. Oyun içi etkisi denge amacıyla uyarlanmıştır.'},
+ {ad:'Stanley FatMax Levye',model:'crowbar',fiyat:110,melee:true,mag:0,cd:.52,pel:0,spr:0,dmg:4,hiz:0,rel:0,menzil:62,arc:1.65,ses:75,ack:'Stanley FatMax tipi dayanıklı levye. Oyunda yakın dövüş ekipmanı olarak kullanılır.'},
+ {ad:'KA-BAR USMC',model:'knife',fiyat:145,melee:true,mag:0,cd:.24,pel:0,spr:0,dmg:2.2,hiz:0,rel:0,menzil:43,arc:1.35,ses:55,ack:'KA-BAR USMC modelinden esinlenen bıçak. Oyun dengesi için özellikleri uyarlanmıştır.'}
+];
+
+const WEAPON_SPECIALS=[
+  {name:'Hızlı Tetik',desc:'Kritik vuruş ihtimalini artırır.',effect:l=>'Kritik şansı: +%'+(l*2.5)},
+  {name:'Uzatılmış Sap',desc:'Balta darbelerinin erişim mesafesini artırır.',effect:l=>'Menzil: +'+(5*l)+' px'},
+  {name:'Ağır Darbe',desc:'Vurduğun hedefleri daha güçlü savurur.',effect:l=>'Savurma gücü: +'+(8*l)},
+  {name:'Kritik Mekanizma',desc:'Kritik vuruşların hasar çarpanını yükseltir.',effect:l=>'Kritik çarpanı: x'+(2+.25*l).toFixed(2)},
+  {name:'Namlu Ayarı',desc:'Seri atış sırasında saçılmayı azaltır.',effect:l=>'Saçılma: -%'+Math.round((1-Math.pow(.88,l))*100)},
+  {name:'Geliştirilmiş Dişler',desc:'Testerenin saldırı aralığını azaltır.',effect:l=>'Saldırı hızı: +%'+Math.round((1-Math.pow(.9,l))*100)},
+  {name:'Geniş Saçma',desc:'Her atışta daha fazla saçma gönderir.',effect:l=>'Saçma: +'+l},
+  {name:'Hızlandırılmış Namlu',desc:'Mermilerin uçuş hızını artırır.',effect:l=>'Mermi hızı: +%'+(9*l)},
+  {name:'Zırh Delici Uç',desc:'Delip geçtiği hedeflerde hasar kaybını azaltır.',effect:l=>'Hasar koruması: %'+Math.round((.55+.09*l)*100)},
+  {name:'Uzun Alev',desc:'Alev parçacıklarının havada kalma süresini artırır.',effect:l=>'Süre: +'+(.07*l).toFixed(2)+' sn'},
+  {name:'Dengeleyici',desc:'Ağır makineli silahın geri tepmesini azaltır.',effect:l=>'Geri tepme: -%'+Math.round((1-Math.pow(.86,l))*100)},
+  {name:'Geniş Patlama',desc:'Patlama alanını büyütür.',effect:l=>'Patlama yarıçapı: +'+(9*l)+' px'},
+  {name:'Kanca Uç',desc:'Levyenin erişim mesafesini artırır.',effect:l=>'Menzil: +'+(4*l)+' px'},
+  {name:'Keskin Ağız',desc:'Bıçağın kritik vuruş ihtimalini artırır.',effect:l=>'Kritik şansı: +%'+(3*l)}
 ];
 
 const ACCESSORIES={
@@ -170,7 +252,8 @@ const ACCESSORIES={
   boots:{name:'Koşu Botları',slot:'Ayak',color:'#b8d86b',desc:'Hareket hızı %22 artar.',speed:1.22},
   gloves:{name:'Güç Eldiveni',slot:'El',color:'#e0953a',desc:'Verdiğin hasar %25 artar.',damage:1.25},
   bag:{name:'Yağmacı Çantası',slot:'Sırt',color:'#c58bce',desc:'Normal ganimet ve aksesuar bulma şansın artar.',loot:.16},
-  grip:{name:'Dengeleyici Kabza',slot:'Silah',color:'#7fc4c4',desc:'Silah geri tepmesi %40 azalır.',recoil:.6}
+  grip:{name:'Dengeleyici Kabza',slot:'Silah',color:'#7fc4c4',desc:'Silah geri tepmesi %40 azalır.',recoil:.6},
+  magnet:{name:'Mıknatıs',slot:'Alet',color:'#e1a84a',desc:'Yerdeki ganimetleri daha uzaktan toplarsın.',pickup:1.6}
 };
 
 /* ====== YENİ SİSTEMLER ====== */
@@ -195,9 +278,9 @@ let p,zs,bs,items,parts,wave,score,kills,running,lastT,spawnLeft,spawnTimer,wave
 let damageLog=[];
 
 function reset(){
-  p={x:0,y:0,r:12,hp:100,maxHp:100,baseMaxHp:100,stam:100,money:Z.bas,g:0,reload:0,cd:0,ang:0,gadgetCd:{grenade:0,molotov:0,c4:0},lockTarget:null,accessories:[],equipped:{},accCap:20,rec:0,kv:0,bleed:0,hunger:100,sleep:100,energy:0,energyTimer:0,energyUseTimes:[]};
+  p={x:0,y:0,r:12,hp:100,maxHp:100,baseMaxHp:100,stam:100,money:Z.bas,scrap:0,g:0,reload:0,cd:0,ang:0,gadgetCd:{grenade:0,molotov:0,c4:0},lockTarget:null,accessories:[],accessoryLevels:{},equipped:{},accCap:20,rec:0,kv:0,bleed:0,hunger:100,sleep:100,energy:0,energyTimer:0,energyUseTimes:[]};
   damageLog=[];
-  p.guns=WEAPONS.map((w,i)=>({own:i==0,ammo:i==0?w.mag:0,res:i==0?w.mag*3:0}));
+  p.guns=WEAPONS.map((w,i)=>({own:i==0,ammo:i==0?w.mag:0,res:i==0?w.mag*3:0,upDmg:0,upRate:0,upMag:0,upSpec:0}));
   zs=[];bs=[];items=[];parts=[];floats=[];rings=[];devices=[];zones=[];walls=[];turrets=[];ammoMachines=[];healers=[];beds=[];flash=0;buildMode=null;
   document.getElementById("buildhint").style.display="none";
   cheats.god=cheats.inf=cheats.explosive=false;cheats.speedMultiplier=1;cheats.damageMultiplier=1;cheats.moneyMult=1;
@@ -216,7 +299,19 @@ function ensureChunks(){
   for(let dx=-3;dx<=3;dx++) for(let dy=-3;dy<=3;dy++){
     const cx=pcx+dx, cy=pcy+dy, k=chunkKey(cx,cy);
     if(!chunks.has(k)){
-      const ch={cx,cy,debris:[]};
+      const ch={cx,cy,debris:[],trees:[]};
+      // Ağaçlar: chunk başına sabit sayıda, farklı boyut ve tonlarda orman kümeleri.
+      const treeN=3+Math.floor(Math.random()*5);
+      for(let i=0;i<treeN;i++){
+        ch.trees.push({
+          x:cx*CHUNK_SIZE+28+Math.random()*(CHUNK_SIZE-56),
+          y:cy*CHUNK_SIZE+28+Math.random()*(CHUNK_SIZE-56),
+          r:17+Math.random()*15,
+          h:.78+Math.random()*.55,
+          hue:Math.random(),
+          seed:Math.random()*6.28
+        });
+      }
       // rastgele enkaz / taş
       const n=3+Math.floor(Math.random()*5);
       for(let i=0;i<n;i++){
@@ -266,9 +361,9 @@ function shoot(){
   const baseAng=p.lockTarget?Math.atan2(p.lockTarget.y-p.y,p.lockTarget.x-p.x):Math.atan2(wm.y-p.y,wm.x-p.x);
   for(let i=0;i<w.pel;i++){
     const a=baseAng+(Math.random()-.5)*w.spr*(1+p.rec*2.5),kr=Math.random()<critChance(w);
-    bs.push({x:p.x,y:p.y,vx:Math.cos(a)*w.hiz,vy:Math.sin(a)*w.hiz,life:w.omur||.9,dmg:w.dmg*playerDamageMultiplier()*(kr?2:1),kr,del:!!w.delici,vurdu:[],renk:kr?'#fff2a0':w.renk,boy:w.boy||2.5,patla:cheats.explosive?(w.patla||72):w.patla,patdmg:(cheats.explosive?Math.max(w.patdmg||0,w.dmg*2,3):w.patdmg)*playerDamageMultiplier()});
+    bs.push({x:p.x,y:p.y,vx:Math.cos(a)*w.hiz,vy:Math.sin(a)*w.hiz,life:w.omur||.9,dmg:w.dmg*playerDamageMultiplier()*(kr?(w.critMult||2):1),kr,del:!!w.delici,penPower:w.penPower||1,vurdu:[],renk:kr?'#fff2a0':w.renk,boy:w.boy||2.5,patla:cheats.explosive?(w.patla||72):w.patla,patdmg:(cheats.explosive?Math.max(w.patdmg||0,w.dmg*2,3):w.patdmg)*playerDamageMultiplier()});
   }
-  const rc=(RECOIL[w.ad]||.3)*gearStat('recoil');p.rec=Math.min(1,p.rec+rc*.25);p.kv=Math.min(160,p.kv+rc*90);
+  const rc=(RECOIL[w.ad]||.3)*gearStat('recoil')*(w.recoilScale||1);p.rec=Math.min(1,p.rec+rc*.25);
   soundFx('shot',w);
 }
 function startReload(){
@@ -318,10 +413,10 @@ function soundFx(kind,w){
     s.connect(f);f.connect(g);g.connect(a.destination);s.start(now);s.stop(now+dur);
   };
   if(kind==='shot'){
-    const melee=!!(w&&w.melee),heavy=w&&(w.ad==='Roketatar'||w.ad==='Ağır Makineli');
+    const melee=!!(w&&w.melee),heavy=w&&(w.model==='rocket'||w.model==='lmg');
     noise(melee?.055:heavy?.16:.085,melee?.055:heavy?.16:.095,melee?900:heavy?1100:2600);
     tone(heavy?105:melee?180:145,heavy?38:melee?75:55,heavy?.18:.09,heavy?.11:.07,'sawtooth');
-    if(w&&w.ad==='Pompalı')tone(90,42,.13,.12,'triangle');
+    if(w&&w.model==='shotgun')tone(90,42,.13,.12,'triangle');
   }else if(kind==='reload'){
     tone(520,360,.07,.035,'square');setTimeout(()=>tone(680,420,.08,.035,'square'),95);
   }else if(kind==='explosion'){
@@ -446,7 +541,7 @@ function update(dt){
   dust=dust.filter(d=>d.life>0);
   for(const k of skids)k.life-=dt;
   skids=skids.filter(k=>k.life>0);
-  if(p.kv>0){p.x-=Math.cos(p.ang)*p.kv*dt;p.y-=Math.sin(p.ang)*p.kv*dt;p.kv=Math.max(0,p.kv-220*dt)}
+  p.kv=0; // Ateş etmenin oyuncuyu geriye itmesi kaldırıldı.
   p.rec=Math.max(0,p.rec-(p.cd>0?.25:1.4)*dt);
   if(p.bleed>0){p.bleed=Math.max(0,p.bleed-dt);if(!cheats.god)p.hp-=2*dt*playerDamageReduction();if(Math.random()<dt*6)burst(p.x,p.y,1,'#a33')}
 
@@ -474,27 +569,20 @@ function update(dt){
     for(const d of rainDrops){d.y+=d.vy*dt;d.x+=40*dt;if(d.y>camera.y+H+20){d.y=camera.y-30;d.x=camera.x+Math.random()*W}}
   }else rainDrops=[];
 
-  {const ox0=p.x,oy0=p.y;wallPush();wallPush();const ex=p.x-ox0,ey=p.y-oy0,en=Math.hypot(ex,ey);
+  {const ox0=p.x,oy0=p.y;wallPush();wallPush();treePush();treePush();const ex=p.x-ox0,ey=p.y-oy0,en=Math.hypot(ex,ey);
    if(en>.01){const nx=ex/en,ny=ey/en,vn=(p.vx||0)*nx+(p.vy||0)*ny;if(vn<0){p.vx-=vn*nx;p.vy-=vn*ny}}}
   ensureChunks();
   camera.x=p.x-W/2;camera.y=p.y-H/2;
 
-  // Lock-on (toggle)
+  // Lock-on: açıkken menzil içindeki en yakın zombiyi sürekli seç.
   if(lockOn){
-    if(p.lockTarget && p.lockTarget.hp>0){
-      // mevcut hedefi koru, menzil dışına çıkarsa yeni ara
-      if(Math.hypot(p.lockTarget.x-p.x,p.lockTarget.y-p.y)>620) p.lockTarget=null;
+    let best=620,bestZ=null;
+    for(const z of zs){
+      if(z.hp<=0)continue;
+      const d=Math.hypot(z.x-p.x,z.y-p.y);
+      if(d<best){best=d;bestZ=z;}
     }
-    if(!p.lockTarget || p.lockTarget.hp<=0){
-      let best=520,bestZ=null;
-      for(const z of zs){
-        if(z.hp<=0)continue;
-        const d=Math.hypot(z.x-p.x,z.y-p.y);
-        if(d<best){best=d;bestZ=z;}
-      }
-      p.lockTarget=bestZ||null;
-      if(!p.lockTarget) lockOn=false; // hedef kalmadıysa kapat
-    }
+    p.lockTarget=bestZ;
   }else{
     p.lockTarget=null;
   }
@@ -587,7 +675,7 @@ function update(dt){
     for(const z of zs){
       if(z.hp>0&&!b.vurdu.includes(z)&&Math.hypot(z.x-b.x,z.y-b.y)<z.r){
         if(b.patla){b.life=0;patlat(b);break}
-        const dealt=b.dmg*(z.armor||1);z.hp-=dealt;z.hit=.1;kayitHasar(dealt,!!b.kr);if(b.kr)kritikFx(z);b.vurdu.push(z);if(!b.del)b.life=0;burst(b.x,b.y,5,'#7a1f1f');
+        const dealt=b.dmg*(z.armor||1)*Math.pow(b.penPower||1,b.vurdu.length);z.hp-=dealt;z.hit=.1;kayitHasar(dealt,!!b.kr);if(b.kr)kritikFx(z);b.vurdu.push(z);if(!b.del)b.life=0;burst(b.x,b.y,5,'#7a1f1f');
         z.x+=b.vx*.02;z.y+=b.vy*.02;
         if(z.hp<=0){kills++;score+=z.big?50:10;kazan(z);burst(z.x,z.y,14,'#5a1010');dropLoot(z);}
         if(!b.del)break;
@@ -640,18 +728,27 @@ function update(dt){
   }
   // eşyalar
   for(const it of items){it.life-=dt;
-    if(Math.hypot(p.x-it.x,p.y-it.y)<p.r+10){
+    if(Math.hypot(p.x-it.x,p.y-it.y)<(p.r+10)*gearStat('pickup')){
       if(it.t=='ammo')ammoVer();
       else if(it.t=='med'){p.hp=Math.min(p.maxHp,p.hp+25);p.bleed=0;p.hunger=Math.min(100,p.hunger+12)}
       else if(it.t=='food'){p.hunger=Math.min(100,p.hunger+45);floats.push({x:p.x,y:p.y-18,t:'+Açlık',life:1.1})}
+      else if(it.t=='scrap'){
+        const v=it.value||5;p.scrap+=v;
+        floats.push({x:p.x,y:p.y-18,t:'HURDA METAL +'+fmtPara(v),life:1.3});
+      }
       else if(it.t=='accessory'){
-        if(!p.accessories.includes(it.id)){
-          p.accessories.push(it.id);
-          konYaz(ACCESSORIES[it.id].name+' bulundu! L ile kuşanma menüsünü aç.','#b8d86b');
-          floats.push({x:p.x,y:p.y-20,t:'AKSESUAR: '+ACCESSORIES[it.id].name,life:1.8});
+        const id=it.id,level=p.accessoryLevels[id]||0;
+        if(level===0){
+          if(p.accessories.length<p.accCap){p.accessories.push(id);p.accessoryLevels[id]=1;}
+        }else if(level<5){
+          p.accessoryLevels[id]=level+1;
+          konYaz(ACCESSORIES[id].name+' birleşti! Etki seviyesi: '+(level+1),'#b8d86b');
+          floats.push({x:p.x,y:p.y-20,t:'AKSESUAR BİRLEŞTİ • Lv.'+(level+1),life:1.8});
+          refreshGearStats();
         }else{
-          p.money+=35;floats.push({x:p.x,y:p.y-20,t:'Tekrar aksesuar +$35',life:1.2});
+          p.scrap+=8;floats.push({x:p.x,y:p.y-20,t:'AKSESUAR MAKS • +8 HURDA',life:1.4});
         }
+        if(level===0)floats.push({x:p.x,y:p.y-20,t:'AKSESUAR: '+ACCESSORIES[id].name,life:1.8});
       }
       it.life=0;beep(520,.1,'sine',.05);}}
   items=items.filter(i=>i.life>0);
@@ -747,6 +844,44 @@ function dayDarkness(){
   return night*0.72;
 }
 
+function drawTree(t){
+  const r=t.r,h=t.h,phase=t.seed;
+  const greens=t.hue<.33?['#243b2b','#31523a','#416744','#587c4b']:
+    t.hue<.66?['#293d2c','#3d5938','#527347','#6b8750']:
+    ['#26372b','#344b34','#49633c','#617b49'];
+  cx.save();cx.translate(t.x,t.y);
+  // Gölge ve kökler
+  cx.fillStyle='rgba(0,0,0,.28)';
+  cx.beginPath();cx.ellipse(4,8,r*1.18,r*.72,0,0,6.28);cx.fill();
+  cx.strokeStyle='#493b2a';cx.lineWidth=Math.max(4,r*.22);cx.lineCap='round';
+  cx.beginPath();cx.moveTo(0,5);cx.lineTo(-r*.28,13);cx.moveTo(0,5);cx.lineTo(r*.3,13);cx.stroke();
+  // Gövde
+  const trunk=cx.createLinearGradient(-r*.16,0,r*.18,0);
+  trunk.addColorStop(0,'#493727');trunk.addColorStop(.45,'#806044');trunk.addColorStop(1,'#3b3025');
+  cx.fillStyle=trunk;cx.beginPath();cx.moveTo(-r*.17,5);cx.lineTo(-r*.12,-r*.92*h);cx.lineTo(r*.12,-r*.92*h);cx.lineTo(r*.2,5);cx.closePath();cx.fill();
+  cx.strokeStyle='rgba(205,166,111,.35)';cx.lineWidth=1.4;cx.beginPath();cx.moveTo(-r*.04,0);cx.lineTo(-r*.02,-r*.72*h);cx.stroke();
+  // Ana taç katmanları
+  const blobs=[
+    [-.48,-.43,.67], [.35,-.52,.72], [0,-.93,.78],
+    [-.18,-1.12,.62], [.48,-.98,.58], [0,-.57,.83]
+  ];
+  for(let i=0;i<blobs.length;i++){
+    const [x,y,k]=blobs[i],rr=r*k;
+    cx.fillStyle=greens[i%3];cx.beginPath();cx.ellipse(x*r,y*r*h,rr,rr*.78,((i%3)-1)*.12,0,6.28);cx.fill();
+    cx.strokeStyle='rgba(12,24,15,.18)';cx.lineWidth=1.2;cx.stroke();
+  }
+  // Yaprak kümeleri ve ışık alan kenarlar
+  for(let i=0;i<11;i++){
+    const a=phase+i*2.399,dist=r*(.15+(i%4)*.13),x=Math.cos(a)*dist,y=-r*.83*h+Math.sin(a)*dist*.65;
+    cx.fillStyle=i%3===0?greens[3]:i%3===1?greens[2]:greens[1];
+    cx.beginPath();cx.arc(x,y,r*(.16+(i%3)*.025),0,6.28);cx.fill();
+    if(i%2===0){cx.fillStyle='rgba(166,190,111,.16)';cx.beginPath();cx.arc(x-r*.035,y-r*.045,r*.065,0,6.28);cx.fill();}
+  }
+  // İnce dallar
+  cx.strokeStyle='rgba(80,57,37,.7)';cx.lineWidth=2;cx.beginPath();
+  cx.moveTo(0,-r*.25);cx.lineTo(-r*.35,-r*.72*h);cx.moveTo(0,-r*.38);cx.lineTo(r*.36,-r*.78*h);cx.stroke();
+  cx.restore();
+}
 function draw(){
   cx.save();
   if(shake>0)cx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
@@ -762,6 +897,7 @@ function draw(){
   for(let y=startY;y<camera.y+H+50;y+=50){cx.beginPath();cx.moveTo(camera.x,y);cx.lineTo(camera.x+W,y);cx.stroke()}
 
   for(const ch of chunks.values()){
+    for(const t of ch.trees||[])drawTree(t);
     for(const d of ch.debris){
       cx.fillStyle=d.col;cx.beginPath();cx.arc(d.x,d.y,d.r,0,6.28);cx.fill();
     }
@@ -803,11 +939,11 @@ function draw(){
     }
   }
   for(const it of items){
-    const accessory=it.t==='accessory',col=accessory?(ACCESSORIES[it.id]?.color||'#c58bce'):it.t=='ammo'?'#d9b24c':it.t=='food'?'#c9a14c':'#d2584f';
+    const accessory=it.t==='accessory',col=accessory?(ACCESSORIES[it.id]?.color||'#c58bce'):it.t=='ammo'?'#d9b24c':it.t=='food'?'#c9a14c':it.t=='scrap'?'#aeb8bb':'#d2584f';
     cx.fillStyle=col;cx.fillRect(it.x-9,it.y-9,18,18);
-    cx.strokeStyle=accessory?'#fff':'#222';cx.lineWidth=accessory?2:1;cx.strokeRect(it.x-9,it.y-9,18,18);
+    cx.strokeStyle=accessory||it.t==='scrap'?'#fff':'#222';cx.lineWidth=accessory||it.t==='scrap'?2:1;cx.strokeRect(it.x-9,it.y-9,18,18);
     cx.fillStyle='#111';cx.font='bold 11px sans-serif';cx.textAlign='center';
-    cx.fillText(accessory?'★':it.t=='ammo'?'M':it.t=='food'?'F':'+',it.x,it.y+4);
+    cx.fillText(accessory?'★':it.t=='ammo'?'M':it.t=='food'?'F':it.t=='scrap'?'▦':'+',it.x,it.y+4);
   }
   for(const z of zones){
     cx.globalAlpha=Math.min(.55,z.t/1.5);
@@ -927,7 +1063,7 @@ function hud(){
   cx.fillStyle='rgba(8,12,10,.55)';cx.fillRect(8,8,254,bars.length*17+6);
   let y=14;cx.textAlign='left';cx.font='11px Georgia';
   for(const b of bars){cx.fillStyle='#d8e2d0';cx.fillText(b[0],16,y+9);bar(112,y,140,10,b[1],b[2],b[3]);y+=17}
-  const ak=[lockOn&&'LOCK ON',cheats.god&&'GOD',cheats.inf&&'MERMİ ∞',cheats.speedMultiplier!==1&&('HIZ x'+cheats.speedMultiplier),cheats.damageMultiplier!==1&&('HASAR x'+cheats.damageMultiplier),cheats.explosive&&'PATLAYICI',(cheats.moneyMult||1)!==1&&('PARA x'+cheats.moneyMult)].filter(Boolean).join('  ');
+  const ak=[lockOn&&'LOCK ON',cheats.god&&'GOD',cheats.inf&&'MERMİ ∞',cheats.speedMultiplier!==1&&('HIZ x'+cheats.speedMultiplier),cheats.damageMultiplier!==1&&('HASAR x'+cheats.damageMultiplier),cheats.explosive&&'PATLAYICI',(cheats.moneyMult||1)!==1&&('HURDA x'+cheats.moneyMult)].filter(Boolean).join('  ');
   if(ak){cx.fillStyle='#e6c75a';cx.font='12px Georgia';cx.fillText(ak,12,y+12)}
 
   // sağ üst: dalga + zaman + hava
@@ -954,7 +1090,7 @@ function hud(){
     else{const n=Math.min(w.mag,30),bw=220/n;for(let i=0;i<n;i++){cx.fillStyle=cheats.inf||i<Math.ceil(s.ammo/w.mag*n)?'#b8d86b':'#2a332a';cx.fillRect(m-110+i*bw+1,H-18,Math.max(1,bw-2),5)}}
   }
   // alt sol: para ve hızlı erişim
-  cx.fillStyle='rgba(8,12,10,.62)';cx.fillRect(8,H-62,200,24);cx.textAlign='left';cx.fillStyle='#e6c75a';cx.font='bold 15px Georgia';cx.fillText('$ '+fmtPara(p.money),16,H-45);
+  cx.fillStyle='rgba(8,12,10,.72)';cx.fillRect(8,H-66,200,30);cx.textAlign='left';cx.font='bold 13px Georgia';cx.fillStyle='#e6c75a';cx.fillText('$ '+fmtPara(p.money),16,H-49);cx.fillStyle='#b9bfc0';cx.fillText('▦ '+fmtPara(p.scrap)+' hurda',104,H-49);
   hbtn(8,H-32,64,22,'Dükkân V',()=>openShop(),false);hbtn(76,H-32,64,22,'Kuşan L',()=>openEquip(),false);hbtn(144,H-32,64,22,'Ayar M',()=>openSettings(),false);
   // alt sağ: ekipmanlar
   [['G','grenade','Bomba',5],['H','molotov','Molotof',8],['J','c4','C4',10]].forEach((g,i)=>{
@@ -1009,19 +1145,70 @@ function bitti(){
   btn.textContent='Tekrar dene';
 }
 const dk=document.getElementById('dk'),shopEl=document.getElementById('shop');
-function cw(){return WEAPONS[p.g]}
+function cw(){
+  const base=WEAPONS[p.g],g=p.guns[p.g]||{};
+  const dmgLv=(g.upDmg||0)/3,rateLv=(g.upRate||0)/3,magLv=(g.upMag||0)/3,specLv=(g.upSpec||0)/3;
+  const w={...base,
+    dmg:base.dmg*Math.pow(base.melee?1.18:1.15,dmgLv),
+    cd:base.cd*Math.pow(.92,rateLv),
+    mag:base.melee?0:Math.min(200,Math.round(base.mag*Math.pow(1.2,magLv))),
+    specLv
+  };
+  switch(p.g){
+    case 1: w.menzil+=5*specLv; break;                         // Fiskars X27
+    case 2: w.knockback=28+8*specLv; break;                    // Estwing E3-FF4
+    case 3: w.critMult=2+.25*specLv; break;                    // Colt Python
+    case 4: w.spr*=Math.pow(.88,specLv); break;                // HK MP5
+    case 5: w.cd*=Math.pow(.9,specLv); break;                  // STIHL MS 261
+    case 6: w.pel+=specLv; break;                              // Remington 870
+    case 7: w.hiz*=1+.09*specLv; break;                        // M4A1
+    case 8: w.penPower=.55+.09*specLv; break;                  // Barrett M82
+    case 9: w.omur+=.07*specLv; break;                         // M2 Flamethrower
+    case 10: w.recoilScale=Math.pow(.86,specLv); break;         // M249 SAW
+    case 11: w.patla+=9*specLv; break;                         // RPG-7
+    case 12: w.menzil+=4*specLv; break;                         // Stanley FatMax Levye
+    case 13: w.critBonus=.03*specLv; break;                     // KA-BAR USMC
+  }
+  if(p.g===0)w.critBonus=.025*specLv;                           // Glock 18
+  return w;
+}
 function cs(){return p.guns[p.g]}
+function weaponUpgradePrice(stat,level){
+  const base=WEAPONS[p.g].fiyat||80;
+  return Math.round(5+base*.015+level*3.5);
+}
 function equippedAccessory(id){return !!(p.equipped&&p.equipped[id])}
+function accessoryLevel(id){return Math.max(1,p.accessoryLevels?.[id]||1)}
+function accessoryDescription(id){
+  const lv=accessoryLevel(id),a=ACCESSORIES[id];
+  if(id==='vest')return 'Maksimum can +'+accessoryValue(id,'hp')+'. Gelen hasar %'+Math.round((1-accessoryValue(id,'damageTaken'))*100)+' azalır.';
+  if(id==='boots')return 'Hareket hızı %'+Math.round((accessoryValue(id,'speed')-1)*100)+' artar.';
+  if(id==='gloves')return 'Verdiğin hasar %'+Math.round((accessoryValue(id,'damage')-1)*100)+' artar.';
+  if(id==='bag')return 'Ganimet ve aksesuar bulma şansı +%'+Math.round(accessoryValue(id,'loot')*100)+' artar.';
+  if(id==='grip')return 'Silah geri tepmesi %'+Math.round((1-accessoryValue(id,'recoil'))*100)+' azalır.';
+  if(id==='magnet')return 'Eşya toplama menzili x'+accessoryValue(id,'pickup').toFixed(2)+' olur.';
+  return a?.desc||'';
+}
+function accessoryValue(id,key){
+  const a=ACCESSORIES[id];if(!a||a[key]==null)return 0;
+  const lv=accessoryLevel(id),extra=lv-1;
+  if(key==='hp')return 30+10*extra;                 // Lv.1 +30, Lv.2 +40
+  if(key==='damageTaken')return Math.max(.55,a[key]-.03*extra);
+  if(key==='speed')return a[key]+.04*extra;
+  if(key==='damage')return a[key]+.05*extra;
+  if(key==='loot')return a[key]+.04*extra;
+  if(key==='recoil')return Math.max(.3,a[key]-.04*extra);
+  if(key==='pickup')return a[key]+.25*extra;
+  return a[key];
+}
 function gearStat(key,base=1){
   let value=base;
-  for(const id of Object.keys(ACCESSORIES)){
-    if(equippedAccessory(id)&&ACCESSORIES[id][key])value*=ACCESSORIES[id][key];
-  }
+  for(const id of Object.keys(ACCESSORIES))if(equippedAccessory(id)&&ACCESSORIES[id][key]!=null)value*=accessoryValue(id,key);
   return value;
 }
 function gearBonus(key){
   let value=0;
-  for(const id of Object.keys(ACCESSORIES))if(equippedAccessory(id))value+=ACCESSORIES[id][key]||0;
+  for(const id of Object.keys(ACCESSORIES))if(equippedAccessory(id))value+=accessoryValue(id,key)||0;
   return value;
 }
 function refreshGearStats(){
@@ -1075,7 +1262,7 @@ function kaldirYapi(){
 }
 function playerDamageReduction(){return gearStat('damageTaken')}
 function sec(i){if(p.guns[i].own&&i!=p.g){p.g=i;p.reload=0;p.cd=.2}}
-function kazan(z){const v=z.val*(cheats.moneyMult||1);p.money+=v;floats.push({x:z.x,y:z.y,t:'+$'+fmtPara(v),life:1})}
+function kazan(z){const v=Math.max(1,Math.round((z.val||10)*.12*(cheats.moneyMult||1)));p.scrap+=v;floats.push({x:z.x,y:z.y,t:'+'+fmtPara(v)+' HURDA',life:1})}
 function mermiFiyat(){return Math.round(cw().fiyat*.1)+15}
 function openShop(){if(!running)return;shopOpen=true;mouse.down=false;renderShop();shopEl.style.display='flex'}
 function closeShop(){shopOpen=false;shopEl.style.display='none'}
@@ -1094,12 +1281,12 @@ function renderEquip(){
   for(const id of p.accessories){
     const a=ACCESSORIES[id],on=equippedAccessory(id);
     const sellP=45; // sabit satış fiyatı
-    h+='<div class="eq-card'+(on?' on':'')+'" style="--eqc:'+a.color+'"><h3>'+a.name+'</h3><p><b>'+a.slot+'</b><br>'+a.desc+'</p>'+
+    h+='<div class="eq-card'+(on?' on':'')+'" style="--eqc:'+a.color+'"><h3>'+a.name+' <small>Lv.'+accessoryLevel(id)+'/5</small></h3><p><b>'+a.slot+'</b><br>'+accessoryDescription(id)+'<br><small>Tekrarını bulduğunda birleşir ve etkisi artar.</small></p>'+
       '<button data-gear="'+id+'" data-action="'+(on?'remove':'equip')+'">'+(on?'Çıkar':'Kuşan')+'</button> '+
       '<button data-gear="'+id+'" data-action="sell" style="background:#5a2a2a;color:#e8b0b0;margin-left:4px">Sat $'+sellP+'</button> '+
       '<span style="color:'+(on?'#b8d86b':'#9fb092')+'">'+(on?'KUŞANILDI':'ÇANTADA')+'</span></div>';
   }
-  h+='</div><div class="eq-foot"><span>İpucu: Her aksesuar farklı bir özelliği güçlendirir. Satış fiyatı sabit $45.</span><button data-action="close">Kapat (L / Esc)</button></div></div>';
+  h+='</div><div class="eq-foot"><span>İpucu: Aynı aksesuarlar otomatik birleşir. En yüksek seviye 5.</span><button data-action="close">Kapat (L / Esc)</button></div></div>';
   equipEl.innerHTML=h;
 }
 equipEl.addEventListener('click',e=>{
@@ -1112,6 +1299,7 @@ equipEl.addEventListener('click',e=>{
   if(action==='remove')p.equipped[id]=false;
   if(action==='sell'){
     p.accessories=p.accessories.filter(x=>x!==id);
+    delete p.accessoryLevels[id];
     if(p.equipped[id]) delete p.equipped[id];
     p.money+=45;
     refreshGearStats();
@@ -1147,7 +1335,7 @@ function renderSettings(){
 
 const RECOIL={'Tabanca':.35,'Revolver':.6,'Hafif Makineli':.22,'Pompalı':.9,'Tüfek':.3,'Keskin Nişancı':1,'Alev Atar':.05,'Ağır Makineli':.28,'Roketatar':1.2};
 const BLEED_MAX=10,BLEED_ADD={normal:1.2,fast:1.5,big:2.5,armor:2,special:3};
-function critChance(w){return .08+(w.dmg>=4?.1:0)}
+function critChance(w){return Math.min(.65,.08+(w.dmg>=4?.1:0)+(w.critBonus||0))}
 function kritikFx(z){floats.push({x:z.x,y:z.y-14,t:'KRİTİK!',life:.8});rings.push({x:z.x,y:z.y,r:28,life:.3});burst(z.x,z.y,8,'#ffe066')}
 function zBomb(z){
   rings.push({x:z.x,y:z.y,r:80,life:.3});burst(z.x,z.y,24,'#f0a030');shake=Math.max(shake,8);soundFx('explosion');
@@ -1176,6 +1364,21 @@ function upgrade(k,o){
   const fy=upgPrice(k,o.level||1);if(p.money<fy)return false;
   p.money-=fy;o.invested=(o.invested||STRUCT[k].base)+fy;o.level=(o.level||1)+1;soundFx('buy');burst(o.x,o.y,14,STRUCT[k].renk);floats.push({x:o.x,y:o.y-20,t:'Lv.'+o.level,life:1});return true;
 }
+function treePush(){
+  // Ağaç taçları da fiziksel engel: oyuncu gövde/yaprak alanının içinden geçemez.
+  for(const ch of chunks.values()){
+    for(const t of ch.trees||[]){
+      const tr=t.r*.72, tx=t.x, ty=t.y-t.r*.68*t.h;
+      const minD=tr+p.r, ox=p.x-tx, oy=p.y-ty, d=Math.hypot(ox,oy);
+      if(d>=minD)continue;
+      let nx,ny;
+      if(d>.0001){nx=ox/d;ny=oy/d;}
+      else{const vl=Math.hypot(p.vx||0,p.vy||0)||1;nx=-(p.vx||0)/vl;ny=-(p.vy||0)/vl;}
+      p.x+=nx*(minD-d);p.y+=ny*(minD-d);
+    }
+  }
+}
+
 function wallPush(){
   for(const w of walls){
     const hx=w.w/2,hy=w.h/2;
@@ -1237,15 +1440,24 @@ function istat(w){
   ];
 }
 function silahSema(w){
-  if(w.melee){
-    const head=w.ad==='Çekiç'
-      ?'<path class="accent" d="M42 8h23v12H42z M47 20h6v19h-6z"/>'
-      :'<path class="accent" d="M42 7h18l-5 15H42z"/>';
-    return '<svg viewBox="0 0 100 48" aria-hidden="true"><path class="dark" d="M49 18h5v27h-5z"/>'+head+'</svg>';
-  }
-  const rocket=w.ad==='Roketatar',shot=w.ad==='Pompalı',sniper=w.ad==='Keskin Nişancı';
-  const barrel=rocket?'M57 15h34v8H57z':sniper?'M55 17h38v3H55z':shot?'M55 16h30v6H55z':'M55 17h25v4H55z';
-  return '<svg viewBox="0 0 100 48" aria-hidden="true"><path class="dark" d="M15 17h18l8-5h17v19H40l-7-5H15z"/><path class="metal" d="'+barrel+'"/><path class="dark" d="M40 29h12l-4 12H37z"/><path class="accent" d="M21 19h10v6H21z"/>'+(sniper?'<path class="accent" d="M37 8h23v4H37z"/>':'')+(rocket?'<path class="accent" d="M85 12l12 7-12 7z"/>':'')+'</svg>';
+  const common='<defs><linearGradient id="steel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e0e9df"/><stop offset=".48" stop-color="#7f9287"/><stop offset="1" stop-color="#3b4a40"/></linearGradient><linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b88750"/><stop offset="1" stop-color="#563923"/></linearGradient></defs>';
+  const paths={
+    pistol:'<path class="dark" d="M17 14h48v13H17z"/><path class="metal" d="M58 17h32v6H58z"/><path class="wood" d="M31 27h19l-5 17H34z"/><path class="accent" d="M23 17h12v7H23z"/>',
+    axe:'<path class="wood" d="M47 8h7v37h-7z"/><path class="metal" d="M27 8q-8 13 0 25h20V8z"/><path class="accent" d="M28 10h17v5H28z"/>',
+    hammer:'<path class="wood" d="M47 16h7v30h-7z"/><path class="metal" d="M25 7h48v13H25z"/><path class="accent" d="M31 9h36v4H31z"/>',
+    revolver:'<path class="dark" d="M15 15h44v13H15z"/><path class="metal" d="M55 18h35v5H55z"/><circle class="accent" cx="48" cy="22" r="7"/><path class="wood" d="M31 28h17l-5 16H34z"/>',
+    smg:'<path class="dark" d="M14 15h47v13H14z"/><path class="metal" d="M58 18h31v6H58z"/><path class="wood" d="M32 28h13l-4 15H31z"/><path class="accent" d="M20 10h24v5H20z"/>',
+    chainsaw:'<path class="dark" d="M12 13h48v25H12z"/><path class="metal" d="M55 17h37v17H55z"/><path class="accent" d="M61 20h27v11H61z"/><path class="wood" d="M25 35h12v10H25z"/>',
+    shotgun:'<path class="dark" d="M13 16h47v12H13z"/><path class="metal" d="M58 17h34v5H58zM58 24h34v4H58z"/><path class="wood" d="M31 28h16l-4 16H34z"/>',
+    rifle:'<path class="dark" d="M10 17h52v10H10z"/><path class="metal" d="M58 18h34v5H58z"/><path class="wood" d="M26 27h20l-6 15H29z"/><path class="accent" d="M39 11h20v4H39z"/>',
+    sniper:'<path class="dark" d="M8 18h55v9H8z"/><path class="metal" d="M59 19h37v4H59z"/><path class="wood" d="M26 27h20l-6 14H29z"/><path class="accent" d="M37 9h30v5H37zM48 14h5v5h-5z"/>',
+    flame:'<path class="dark" d="M12 15h52v20H12z"/><path class="metal" d="M58 19h34v9H58z"/><path class="accent" d="M18 19h23v11H18z"/><path class="wood" d="M29 34h17l-5 11H32z"/>',
+    lmg:'<path class="dark" d="M8 15h55v14H8z"/><path class="metal" d="M59 19h36v6H59z"/><path class="wood" d="M27 29h18l-5 15H30z"/><path class="accent" d="M43 29h12v12H43z"/>',
+    rocket:'<path class="dark" d="M9 16h57v17H9z"/><path class="metal" d="M61 19h29v11H61z"/><path class="accent" d="M87 14l12 10-12 10z"/><path class="wood" d="M26 33h17l-5 12H29z"/>',
+    crowbar:'<path class="metal" d="M26 7h7v31h-7zM26 7q-1-6 7-5l9 5-3 5-9-4v7h-4z"/><path class="accent" d="M26 35h7v9h-7z"/>',
+    knife:'<path class="wood" d="M15 25h35v9H15z"/><path class="metal" d="M48 25l43-13q-13 18-43 22z"/><path class="accent" d="M20 27h20v5H20z"/>'
+  };
+  return '<svg viewBox="0 0 100 48" aria-hidden="true">'+common+(paths[w.model]||paths.pistol)+'</svg>';
 }
 function dolas(d){
   const n=WEAPONS.length;let i=p.g;
@@ -1268,7 +1480,7 @@ function mkart(ad,tur,ack,fiyat,renk,btn){
 }
 function renderShop(){
   const g=cs(),w=cw();
-  let h='<div class="sh-ust"><h2>Silah ve Savunma Dükkânı</h2><div class="sh-para">$ '+p.money+'</div></div>';
+  let h='<div class="sh-ust"><h2>Silah ve Savunma Dükkânı</h2><div class="sh-para">$ '+p.money+' &nbsp; | &nbsp; ▦ '+p.scrap+' hurda</div></div>';
   h+='<div class="sh-alt">Elinde: <b>'+w.ad+'</b>'+(w.melee?'':'  |  '+(cheats.inf?'∞':g.ammo)+' / '+g.res)+'</div>';
   const T=[['hepsi','Hepsi'],['yakin','Yakın dövüş'],['ates','Ateşli'],['malzeme','Malzeme']];
   h+='<div class="sh-tab">'+T.map(t=>'<button data-a="tab" data-t="'+t[0]+'" class="'+(shopTab==t[0]?'on':'')+'">'+t[1]+'</button>').join('')+'</div>';
@@ -1289,8 +1501,25 @@ function renderShop(){
         if(x.fiyat>0) d+=' <button data-a="sat" data-i="'+i+'" style="background:#5a2a2a;color:#e8b0b0">Sat $'+sellPrice+'</button>';
       }else d='<button data-a="al" data-i="'+i+'"'+(yok?' disabled':'')+'>Satın al</button>';
       const bars=istat(x).map(b=>'<div class="sh-bar"><span>'+b[0]+'</span><i><b style="width:'+Math.round(b[1]*100)+'%;background:'+renk+'"></b></i><small>'+b[2]+'</small></div>').join('');
-      h+='<div class="sh-kart'+(eld?' eld':'')+(yok?' soluk':'')+'" style="--renk:'+renk+'"><div class="sh-bas"><b>'+x.ad+'</b><em>'+tur+'</em></div><div class="sh-shema">'+silahSema(x)+'</div><p>'+x.ack+'</p><div class="sh-stathead"><span>Performans şeması</span><span>'+((x.fiyat>0)?'$'+x.fiyat:'BAŞLANGIÇ')+'</span></div>'+bars+'<div class="sh-alt2"><span class="sh-fiyat">'+(x.fiyat?'$'+x.fiyat:'Ücretsiz')+'</span>'+d+'</div>'+(s.own&&!x.melee?'<small>Şarjör: '+s.mag+' • Yedek: '+s.res+'</small>':'')+'</div>';
+      h+='<div class="sh-kart'+(eld?' eld':'')+(yok?' soluk':'')+'" style="--renk:'+renk+'"><div class="sh-bas"><b>'+x.ad+'</b><em>'+tur+'</em></div><div class="sh-shema">'+silahSema(x)+'</div><p>'+x.ack+'</p><div class="sh-stathead"><span>Performans şeması</span><span>'+((x.fiyat>0)?'$'+x.fiyat:'BAŞLANGIÇ')+'</span></div>'+bars+'<div class="sh-alt2"><span class="sh-fiyat">'+(x.fiyat?'$'+x.fiyat:'Ücretsiz')+'</span>'+d+'</div>'+(s.own&&!x.melee?'<small>Şarjör: '+s.ammo+' • Yedek: '+s.res+'</small>':'')+'</div>';
     });
+    const ug=cw(),uw=cw(),us=cs();
+    const addUpgrade=(stat,label,desc,max=15,disabled=false)=>{
+      const key=stat==='dmg'?'upDmg':stat==='rate'?'upRate':'upMag';
+      const lv=us[key]||0,price=weaponUpgradePrice(stat,lv);
+      const full=lv>=max,off=disabled||full||p.scrap<price;
+      const detail=full?'Maksimum seviye':desc+' • Seviye '+lv+'/'+max;
+      h+=mkart(label+' '+(lv>=max?'(MAKS)':'Lv.'+lv), 'Silah yükseltme',detail,full?'MAKS':price+' Hurda','#b8d86b',
+        '<button data-a="wup" data-stat="'+stat+'"'+(off?' disabled':'')+'>Yükselt</button>');
+    };
+    h+='<div style="grid-column:1/-1;color:#b8d86b;font-size:19px;margin:8px 0 0">Elindeki silahı yükselt: '+ug.ad+' • Tüm geliştirmeler hurda metal ile alınır.</div>';
+    addUpgrade('dmg','Hasar','Vuruş başına hasar artar. '+uw.dmg.toFixed(1)+' mevcut hasar.',15);
+    addUpgrade('rate','Ateş hızı','Atış aralığı azalır. '+(1/uw.cd).toFixed(1)+' atış/sn.',15);
+    addUpgrade('mag','Şarjör','Şarjör kapasitesi artar. '+(uw.melee?'Yakın dövüş silahında kullanılamaz.':uw.mag+' mermi mevcut.'),15,!!uw.melee);
+    const spLv=us.upSpec||0,spMax=15,spPrice=weaponUpgradePrice('spec',spLv),sp=WEAPON_SPECIALS[p.g];
+    h+=mkart(sp.name+' • Lv.'+spLv+'/'+spMax,'SİLAHA ÖZEL GELİŞTİRME',
+      sp.desc+' '+sp.effect(spLv/3)+(spLv>=spMax?' • Maksimum seviye':''),spLv>=spMax?'MAKS':spPrice+' Hurda','#e6c75a',
+      '<button data-a="wup" data-stat="spec"'+(spLv>=spMax||p.scrap<spPrice?' disabled':'')+'>Özel geliştirme</button>');
   }else{
     const f=mermiFiyat(),mel=w.melee;
     h+=mkart('Cephane','Malzeme',mel?'Elindeki silah cephane kullanmaz.':w.ad+' için bir şarjör.',f,'#d9b24c','<button data-a="mermi"'+(p.money<f||mel?' disabled':'')+'>Satın al</button>');
@@ -1333,6 +1562,20 @@ shopEl.addEventListener('click',e=>{
     }
   }
   else if(a=='sec')sec(i);
+  else if(a=='wup'){
+    const stat=b.dataset.stat,g=cs(),key=stat==='dmg'?'upDmg':stat==='rate'?'upRate':stat==='mag'?'upMag':'upSpec';
+    const max=15,level=g[key]||0,price=weaponUpgradePrice(stat,level);
+    if(level<max&&p.scrap>=price&&!(stat==='mag'&&cw().melee)){
+      p.scrap-=price;g[key]=level+1;
+      if(stat==='mag'){
+        const oldMag=WEAPONS[p.g].mag*Math.pow(1.2,level/3);
+        const newMag=cw().mag;
+        g.ammo=Math.min(newMag,g.ammo+Math.max(0,newMag-Math.round(oldMag)));
+      }
+      soundFx('buy');
+      floats.push({x:p.x,y:p.y-24,t:'SİLAH YÜKSELTİLDİ',life:1.3});
+    }
+  }
   else if(a=='mermi'){const f=mermiFiyat();if(p.money>=f&&!cw().melee){p.money-=f;cs().res+=cw().mag;soundFx('buy')}}
   else if(a=='paket'){if(p.money>=PAKET){p.money-=PAKET;WEAPONS.forEach((x,j)=>{if(p.guns[j].own&&!x.melee)p.guns[j].res+=x.mag});soundFx('buy')}}
   else if(a=='can'){if(p.money>=60&&(p.hp<p.maxHp||p.bleed>0)){p.money-=60;p.hp=Math.min(p.maxHp,p.hp+50);p.bleed=0;soundFx('buy')}}
@@ -1365,12 +1608,19 @@ function closeKon(){konOpen=false;mouse.down=false;konEl.style.display='none';ko
 function dropLoot(z){
   if(z.tur==='special')zBomb(z);
   const bonus=gearBonus('loot');
+  // Her zombi, zorluk ve ekipman bonusuna göre temel ganimet bırakabilir.
   if(Math.random()<Math.min(.9,Z.drop+bonus)){
     const r=Math.random();
-    items.push({x:z.x,y:z.y,t:r<.45?'ammo':r<.8?'med':'food',life:14});
+    let loot;
+    if(r<.35) loot={t:'ammo'};                 // Cephane
+    else if(r<.62) loot={t:'med'};             // İlk yardım
+    else if(r<.82) loot={t:'food'};            // Yiyecek
+    else loot={t:'scrap',value:4+Math.floor(Math.random()*5)+Math.min(12,Math.floor(wave/3))};
+    items.push({x:z.x,y:z.y,...loot,life:14});
   }
-  const available=Object.keys(ACCESSORIES).filter(id=>!p.accessories.includes(id));
-  if(available.length&&p.accessories.length<p.accCap&&Math.random()<Math.min(.4,.07+bonus*.35)){
+  // Aksesuarlar ayrı bir şansla düşer; aynı aksesuar ikinci kez düşmez.
+  const available=Object.keys(ACCESSORIES).filter(id=>(p.accessoryLevels[id]||0)<5&& (p.accessories.includes(id)||p.accessories.length<p.accCap));
+  if(available.length&&Math.random()<Math.min(.4,.07+bonus*.35)){
     const id=available[Math.floor(Math.random()*available.length)];
     items.push({x:z.x+(Math.random()-.5)*12,y:z.y+(Math.random()-.5)*12,t:'accessory',id,life:22});
   }
@@ -1390,7 +1640,7 @@ function vur(w){
     let da=Math.atan2(dy,dx)-p.ang;da=Math.atan2(Math.sin(da),Math.cos(da));
     if(Math.abs(da)>w.arc/2&&d>p.r+z.r)continue;
     const dealt=w.dmg*playerDamageMultiplier();z.hp-=dealt;z.hit=.12;kayitHasar(dealt,false);burst(z.x,z.y,6,'#7a1f1f');
-    z.x+=dx/(d||1)*28;z.y+=dy/(d||1)*28;
+    const push=w.knockback||28;z.x+=dx/(d||1)*push;z.y+=dy/(d||1)*push;
     if(z.hp<=0)oldur(z);
   }
 }
@@ -1412,6 +1662,9 @@ function komut(raw){
       cheats.damageMultiplier=Math.min(50,n);konYaz('Hasar çarpanı: x'+cheats.damageMultiplier,yeşil);break;
     case 'explosiveammo':case 'patlayicimermi':case 'patlayıcımermi':cheats.explosive=!cheats.explosive;durum(cheats.explosive,'Patlayıcı mermi');break;
     case 'money':case 'para':p.money+=isNaN(n)?1000:n;konYaz('Para: $'+p.money,yeşil);break;
+    case 'scrap':case 'hurda':
+      {const miktar=Number.isFinite(n)&&n>0?Math.floor(Math.min(n,1e9)):100;
+       p.scrap+=miktar;konYaz(miktar+' hurda metal eklendi. Toplam: '+fmtPara(p.scrap),yeşil);break}
     case 'heal':case 'can':
       if(Number.isFinite(n)&&n>0){
         p.baseMaxHp=Math.min(9999,n);refreshGearStats();p.hp=p.maxHp;
@@ -1432,11 +1685,11 @@ function komut(raw){
       if(p.accCap>=35){konYaz('Aksesuar kapasitesi zaten maksimum: 35','#d2584f');break}
       p.accCap=Math.min(35,p.accCap+15);konYaz('Aksesuar kapasitesi: '+p.accCap+' (maks 35)',yeşil);break;
     case 'help':case 'yardim':
-      konYaz('god, infiniteammo, hiz [carpan], hasar [carpan], can [maks], explosiveammo, money [n], giveall, killall, wave [n], spawn [n]');
+      konYaz('god, infiniteammo, hiz [carpan], hasar [carpan], can [maks], explosiveammo, money [n], scrap [n], giveall, killall, wave [n], spawn [n]');
       konYaz('Örnek: can 250 (maks can), hiz 2.5, hasar 3');
       konYaz('aksesuar: kapasite +15 (başlangıç 20, maks 35)');
       konYaz('hiz komutu sayısız yazılırsa x1.8 / x1 arasında geçiş yapar.');
-      konYaz('Türkçe: tanri, sonsuzmermi, hiz, hasar, patlayicimermi, para, can, tumsilahlar, oldur, dalga, zombi');
+      konYaz('Türkçe: tanri, sonsuzmermi, hiz, hasar, patlayicimermi, para, hurda [miktar], can, tumsilahlar, oldur, dalga, zombi');
       konYaz('Esc ile konsolu kapat');break;
     default:konYaz('Bilinmeyen komut. "help" yaz.','#d2584f');
   }
@@ -1463,7 +1716,8 @@ const CHEATS=[
  ]],
  ['Ekonomi',[
   {ad:'Para ekle',ac:'Girdiğin miktarı ekler.',t:'a',def:1000,min:1,max:1e9,lbl:'Ekle',fn:v=>{p.money+=v}},
-  {ad:'Para çarpanı',ac:'Zombilerden kazandığın para. 1 = normal.',t:'n',min:.1,max:100,step:.5,get:()=>cheats.moneyMult||1,set:v=>cheats.moneyMult=v}
+  {ad:'Hurda ekle',ac:'Girdiğin miktarda hurda metal verir.',t:'a',def:100,min:1,max:1e9,lbl:'Ekle',fn:v=>{p.scrap+=v;konYaz(v+' hurda metal eklendi. Toplam: '+fmtPara(p.scrap),'#b8d86b')}},
+  {ad:'Hurda çarpanı',ac:'Zombileri öldürerek kazandığın hurdayı çarpar. 1 = normal.',t:'n',min:.1,max:100,step:.1,get:()=>cheats.moneyMult||1,set:v=>cheats.moneyMult=v}
  ]],
  ['Dünya',[
   {ad:'Dalgaya atla',ac:'Girdiğin dalgayı başlatır (en fazla 100000).',t:'a',def:5,min:1,max:100000,lbl:'Git',fn:v=>komut('wave '+v)},
