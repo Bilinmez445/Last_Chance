@@ -663,23 +663,25 @@ function update(dt){
       z.parryFinishTimer-=dt;
       const prevX=z.x,prevY=z.y;
       z.x+=z.kvx*dt;z.y+=z.kvy*dt;
-      // Savrulan ana zombi sağa doğru ilerlerken arkasında toz izi bırakır.
+      // Toz izi, oyuncunun baktığı yöne göre 90 derece sağa savrulmanın arkasında kalır.
+      const pdx=z.parryDirX??1,pdy=z.parryDirY??0;
       z.parryDustTimer=(z.parryDustTimer||0)-dt;
       if(z.parryDustTimer<=0){
         z.parryDustTimer=.035;
-        for(let q=0;q<3;q++)dust.push({x:z.x-8-Math.random()*12,y:z.y+z.r*.45+(Math.random()-.5)*z.r,
-          vx:-90-Math.random()*150,vy:-25+Math.random()*55,life:.32+Math.random()*.28,max:.6,r:4+Math.random()*7});
+        for(let q=0;q<3;q++)dust.push({x:z.x-pdx*(8+Math.random()*12)+(Math.random()-.5)*z.r*.5,y:z.y-pdy*(8+Math.random()*12)+(Math.random()-.5)*z.r*.5,
+          vx:-pdx*(90+Math.random()*150)+(Math.random()-.5)*45,vy:-pdy*(90+Math.random()*150)+(Math.random()-.5)*45,life:.32+Math.random()*.28,max:.6,r:4+Math.random()*7});
       }
-      // Çarpılan diğer zombiler ölmez; sağa savrulup 5 saniye sersem kalır.
+      // Çarpılan diğer zombiler ölmez; aynı 90 derece sağ yönünde savrulup 5 saniye sersem kalır.
       z.parryHitTargets=z.parryHitTargets||[];
       for(const other of zs){
-        if(other===z||other.hp<=0||z.parryHitTargets.includes(other))continue;
+        if(other===z||other.hp<=0||other.parryFinishTimer>0||z.parryHitTargets.includes(other))continue;
         const dx=other.x-z.x,dy=other.y-z.y,dist=Math.hypot(dx,dy);
-        if(dist<z.r+other.r+5){
+        const along=dx*pdx+dy*pdy,across=Math.abs(dx*pdy-dy*pdx);
+        if(along>=-other.r&&along<z.r+other.r+14&&across<z.r+other.r+8){
           z.parryHitTargets.push(other);
-          const dir=dx>0?1:-1;
-          other.kvx=dir*(620+Math.random()*100);
-          other.kvy=-90+(Math.random()-.5)*100;
+          const chainForce=620+Math.random()*100;
+          other.kvx=pdx*chainForce;
+          other.kvy=pdy*chainForce-35;
           other.stun=Math.max(other.stun||0,5);
           other.hit=.16;
           burst(other.x,other.y,9,'#c9bda7');
@@ -1199,30 +1201,33 @@ function bitti(){
 const dk=document.getElementById('dk'),shopEl=document.getElementById('shop');
 function cw(){
   const base=WEAPONS[p.g],g=p.guns[p.g]||{};
-  const dmgLv=(g.upDmg||0)/3,rateLv=(g.upRate||0)/3,magLv=(g.upMag||0)/3,specLv=(g.upSpec||0)/3;
+  const dmgLevel=g.upDmg||0,rateLevel=g.upRate||0,magLevel=g.upMag||0,specLevel=g.upSpec||0;
+  const rateMult=1+.1*rateLevel,magMult=1+.1*magLevel,specLv=specLevel/3;
+  // Tüm geliştirmeler aynı doğrusal çarpan dizisini kullanır: x1.0, x1.1, x1.2...
+  const specPower=specLv*(1+.1*specLevel);
   const w={...base,
-    dmg:base.dmg*Math.pow(base.melee?1.18:1.15,dmgLv),
-    cd:base.cd*Math.pow(.92,rateLv),
-    mag:base.melee?0:Math.min(200,Math.round(base.mag*Math.pow(1.2,magLv))),
+    dmg:base.dmg*(1+.1*dmgLevel),
+    cd:base.cd/rateMult,
+    mag:base.melee?0:Math.min(200,Math.round(base.mag*magMult)),
     specLv
   };
   switch(p.g){
-    case 1: w.menzil+=5*specLv; break;                         // Fiskars X27
-    case 2: w.dmg*=1+.08*specLv; break;                         // Estwing E3-FF4
-    case 3: w.critMult=2+.25*specLv; break;                    // Colt Python
-    case 4: w.spr*=Math.pow(.88,specLv); break;                // HK MP5
-    case 5: w.cd*=Math.pow(.9,specLv); break;                  // STIHL MS 261
-    case 6: w.pel+=specLv; break;                              // Remington 870
-    case 7: w.hiz*=1+.09*specLv; break;                        // M4A1
-    case 8: w.penPower=.55+.09*specLv; break;                  // Barrett M82
-    case 9: w.omur+=.07*specLv; break;                         // M2 Flamethrower
-    case 10: w.recoilScale=Math.pow(.86,specLv); break;         // M249 SAW
-    case 11: w.patla+=9*specLv; break;                         // RPG-7
-    case 12: w.menzil+=4*specLv; break;                         // Stanley FatMax Levye
-    case 13: w.critBonus=.03*specLv; break;                     // KA-BAR USMC
-    case 14: w.critBonus=.025*specLv; break;                    // Metal Beyzbol Sopası
+    case 1: w.menzil+=5*specPower; break;                         // Fiskars X27
+    case 2: w.dmg*=1+.08*specPower; break;                         // Estwing E3-FF4
+    case 3: w.critMult=2+.25*specPower; break;                    // Colt Python
+    case 4: w.spr*=Math.pow(.88,specPower); break;                // HK MP5
+    case 5: w.cd*=Math.pow(.9,specPower); break;                  // STIHL MS 261
+    case 6: w.pel+=specPower; break;                              // Remington 870
+    case 7: w.hiz*=1+.09*specPower; break;                        // M4A1
+    case 8: w.penPower=.55+.09*specPower; break;                  // Barrett M82
+    case 9: w.omur+=.07*specPower; break;                         // M2 Flamethrower
+    case 10: w.recoilScale=Math.pow(.86,specPower); break;         // M249 SAW
+    case 11: w.patla+=9*specPower; break;                         // RPG-7
+    case 12: w.menzil+=4*specPower; break;                         // Stanley FatMax Levye
+    case 13: w.critBonus=.03*specPower; break;                     // KA-BAR USMC
+    case 14: w.critBonus=.025*specPower; break;                    // Metal Beyzbol Sopası
   }
-  if(p.g===0)w.critBonus=.025*specLv;                           // Glock 18
+  if(p.g===0)w.critBonus=.025*specPower;                           // Glock 18
   return w;
 }
 function cs(){return p.guns[p.g]}
@@ -1587,12 +1592,12 @@ function renderShop(){
         '<button data-a="wup" data-stat="'+stat+'"'+(off?' disabled':'')+'>Yükselt</button>');
     };
     h+='<div style="grid-column:1/-1;color:#b8d86b;font-size:19px;margin:8px 0 0">Elindeki silahı yükselt: '+ug.ad+' • Tüm geliştirmeler hurda metal ile alınır.</div>';
-    addUpgrade('dmg','Hasar','Vuruş başına hasar artar. '+uw.dmg.toFixed(1)+' mevcut hasar.',15);
-    addUpgrade('rate','Ateş hızı','Atış aralığı azalır. '+(1/uw.cd).toFixed(1)+' atış/sn.',15);
-    addUpgrade('mag','Şarjör','Şarjör kapasitesi artar. '+(uw.melee?'Yakın dövüş silahında kullanılamaz.':uw.mag+' mermi mevcut.'),15,!!uw.melee);
+    addUpgrade('dmg','Hasar','Hasar çarpanı her yükseltmede +x0.1 artar. Şu an x'+(1+.1*(us.upDmg||0)).toFixed(1)+' • '+uw.dmg.toFixed(1)+' mevcut hasar.',15);
+    addUpgrade('rate','Ateş hızı','Her seviye atış hızını x1.1 çarpanına taşır. Şu an x'+(1+.1*(us.upRate||0)).toFixed(1)+' • '+(1/uw.cd).toFixed(1)+' atış/sn.',15);
+    addUpgrade('mag','Şarjör','Her seviye kapasiteyi x1.1 çarpanına taşır. Şu an x'+(1+.1*(us.upMag||0)).toFixed(1)+' • '+(uw.melee?'Yakın dövüş silahında kullanılamaz.':uw.mag+' mermi mevcut.'),15,!!uw.melee);
     const spLv=us.upSpec||0,spMax=15,spPrice=weaponUpgradePrice('spec',spLv),sp=WEAPON_SPECIALS[p.g];
     h+=mkart(sp.name+' • Lv.'+spLv+'/'+spMax,'SİLAHA ÖZEL GELİŞTİRME',
-      sp.desc+' '+sp.effect(spLv/3)+(spLv>=spMax?' • Maksimum seviye':''),spLv>=spMax?'MAKS':spPrice+' Hurda','#e6c75a',
+      sp.desc+' '+sp.effect(spLv/3)+' • Etki çarpanı x'+(1+.1*spLv).toFixed(1)+(spLv>=spMax?' • Maksimum seviye':''),spLv>=spMax?'MAKS':spPrice+' Hurda','#e6c75a',
       '<button data-a="wup" data-stat="spec"'+(spLv>=spMax||p.scrap<spPrice?' disabled':'')+'>Özel geliştirme</button>');
   }else{
     const f=mermiFiyat(),mel=w.melee;
@@ -1642,7 +1647,7 @@ shopEl.addEventListener('click',e=>{
     if(level<max&&p.scrap>=price&&!(stat==='mag'&&cw().melee)){
       p.scrap-=price;g[key]=level+1;
       if(stat==='mag'){
-        const oldMag=WEAPONS[p.g].mag*Math.pow(1.2,level/3);
+        const oldMag=WEAPONS[p.g].mag*(1+.1*level);
         const newMag=cw().mag;
         g.ammo=Math.min(newMag,g.ammo+Math.max(0,newMag-Math.round(oldMag)));
       }
@@ -1747,9 +1752,12 @@ function vur(w){
     let parry=false;
     if(w.model==='bat'&&z.attackWindup>0&&z.attackPending){
       parry=true;z.attackWindup=0;z.attackPending=false;z.attackCd=Math.max(z.attackCd||0,1.5);
-      // Karşı vuruş ana zombiyi daima ekranın sağına doğru fırlatır.
+      // Fırlatma yönü, oyuncunun baktığı yöne göre tam 90 derece saat yönündedir.
+      // Kuzey -> Doğu, Doğu -> Güney, Güney -> Batı, Batı -> Kuzey.
       const force=z.big?850:1240;
-      z.kvx=force;z.kvy=-95;
+      const launchAngle=p.ang+Math.PI/2;
+      z.parryDirX=Math.cos(launchAngle);z.parryDirY=Math.sin(launchAngle);
+      z.kvx=z.parryDirX*force;z.kvy=z.parryDirY*force;
       z.parryHitTargets=[];z.parryDustTimer=0;
       z.stun=Math.max(z.stun||0,z.big?1.15:1.8);
       // Önce savrulma animasyonu tamamlanır, ardından zombi öldürülür.
