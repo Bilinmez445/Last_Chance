@@ -127,13 +127,14 @@
   <div class="mbtn" id="mRun">KOŞ</div>
   <div class="mbtn" id="mShop">V</div>
   <div class="mbtn" id="mGren">G</div>
+  <div class="mbtn" id="mEnergy" style="right:180px;bottom:100px;width:48px;height:48px;font-size:11px">X</div>
   <div class="mbtn" id="mSlide">KAY</div>
 </div>
 <div id="kon"><div class="cp"><div class="ch"><h2>Hile Paneli</h2><button class="cx" data-x="kapat">Kapat (Esc)</button></div><div id="ctabs"></div><div id="cbody"></div><div class="cf"><button class="cx" data-x="sifirla">Varsayılana dön</button><span>Hileler panel kapanınca da açık kalır.</span></div><div id="konlog"></div><input id="konin" autocomplete="off" spellcheck="false" placeholder="Komut satırı: help yazıp Enter'a bas"></div></div>
 <div id="ov">
   <h1>LAST CHANCE</h1><p style="letter-spacing:3px;color:#9fb092;margin:0 0 6px">SURVIVE. ADAPT. ENDURE.</p>
   <p>Şehir düştü. Elinde bir tabanca ve sınırlı cephane var. Dalgalar halinde gelen zombilere karşı hayatta kal.</p>
-  <p><b>WASD / Oklar</b>: hareket &nbsp; <b>Fare</b>: nişan &nbsp; <b>Tıkla</b>: ateş<br><b>R</b>: şarjör değiştir &nbsp; <b>Shift</b>: koş &nbsp; <b>C</b>: yerde kay<br><b>V</b>: malzeme / silah dükkânı &nbsp; <b>L</b>: kuşanma &nbsp; <b>F</b>: yapıyı yükselt / yatak<br><b>Y</b>: HUD gizle &nbsp; <b>1-0, Q/E, tekerlek</b>: silah seç<br><b>G</b>: El bombası &nbsp; <b>H</b>: Molotof &nbsp; <b>J</b>: C4 &nbsp; <b>Z</b>: Lock on (aç/kapa)<br><b>M</b>: Ses / Ayarlar<br>Zombileri öldürerek para kazan, silah satın al / sat. Sonsuz haritada hayatta kal.</p>
+  <p><b>WASD / Oklar</b>: hareket &nbsp; <b>Fare</b>: nişan &nbsp; <b>Tıkla</b>: ateş<br><b>R</b>: şarjör değiştir &nbsp; <b>Shift</b>: koş &nbsp; <b>C</b>: yerde kay<br><b>V</b>: malzeme / silah dükkânı &nbsp; <b>L</b>: kuşanma &nbsp; <b>F</b>: yapıyı yükselt / yatak &nbsp; <b>G</b>: yapıyı kaldır<br><b>Y</b>: HUD gizle &nbsp; <b>1-0, Q/E, tekerlek</b>: silah seç<br><b>G</b>: Yakındaki yapıyı kaldır / yoksa el bombası &nbsp; <b>X</b>: Enerji içeceği &nbsp; <b>H</b>: Molotof &nbsp; <b>J</b>: C4 &nbsp; <b>Z</b>: Lock on (aç/kapa)<br><b>M</b>: Ses / Ayarlar<br>Zombileri öldürerek para kazan, silah satın al / sat. Sonsuz haritada hayatta kal.</p>
   <p id="sonuc"></p>
   <div id="zor"></div><p id="zacik"></p>
   <button id="btn">Başla</button>
@@ -191,9 +192,11 @@ let lockOn=false; // Z ile aç/kapa
 
 let keys={},mouse={x:W/2,y:H/2,down:false};
 let p,zs,bs,items,parts,wave,score,kills,running,lastT,spawnLeft,spawnTimer,waveBreak,shake,floats,rings,devices,zones,walls,turrets,ammoMachines,healers,beds,shopOpen=false,konOpen=false,equipOpen=false,flash=0,buildMode=null;
+let damageLog=[];
 
 function reset(){
-  p={x:0,y:0,r:14,hp:100,maxHp:100,baseMaxHp:100,stam:100,money:Z.bas,g:0,reload:0,cd:0,ang:0,gadgetCd:{grenade:0,molotov:0,c4:0},lockTarget:null,accessories:[],equipped:{},accCap:20,rec:0,kv:0,bleed:0,hunger:100,sleep:100};
+  p={x:0,y:0,r:14,hp:100,maxHp:100,baseMaxHp:100,stam:100,money:Z.bas,g:0,reload:0,cd:0,ang:0,gadgetCd:{grenade:0,molotov:0,c4:0},lockTarget:null,accessories:[],equipped:{},accCap:20,rec:0,kv:0,bleed:0,hunger:100,sleep:100,energy:0,energyTimer:0,energyUseTimes:[]};
+  damageLog=[];
   p.guns=WEAPONS.map((w,i)=>({own:i==0,ammo:i==0?w.mag:0,res:i==0?w.mag*3:0}));
   zs=[];bs=[];items=[];parts=[];floats=[];rings=[];devices=[];zones=[];walls=[];turrets=[];ammoMachines=[];healers=[];beds=[];flash=0;buildMode=null;
   document.getElementById("buildhint").style.display="none";
@@ -365,7 +368,7 @@ function gadgetBlast(d){
     const dist=Math.hypot(z.x-d.x,z.y-d.y);
     if(dist<d.radius+z.r){
       const falloff=Math.max(.25,1-dist/(d.radius+z.r));
-      z.hp-=d.damage*falloff*playerDamageMultiplier();z.hit=.15;
+      const dealt=d.damage*falloff*playerDamageMultiplier();z.hp-=dealt;z.hit=.15;kayitHasar(dealt,false);
       if(z.hp<=0)oldur(z);
     }
   }
@@ -485,6 +488,9 @@ function update(dt){
   const aim=p.lockTarget||worldMouse();
   p.ang=Math.atan2(aim.y-p.y,aim.x-p.x);
   p.cd-=dt;p.swing=Math.max(0,(p.swing||0)-dt);flash=Math.max(0,flash-dt*.8);
+  p.energyTimer=Math.max(0,(p.energyTimer||0)-dt);
+  for(const d of damageLog)d.t-=dt;
+  damageLog=damageLog.filter(d=>d.t>0);
   for(const k of Object.keys(p.gadgetCd))p.gadgetCd[k]=Math.max(0,p.gadgetCd[k]-dt);
 
   // Savunma yapıları
@@ -568,7 +574,7 @@ function update(dt){
     for(const z of zs){
       if(z.hp>0&&!b.vurdu.includes(z)&&Math.hypot(z.x-b.x,z.y-b.y)<z.r){
         if(b.patla){b.life=0;patlat(b);break}
-        z.hp-=b.dmg*(z.armor||1);z.hit=.1;if(b.kr)kritikFx(z);b.vurdu.push(z);if(!b.del)b.life=0;burst(b.x,b.y,5,'#7a1f1f');
+        const dealt=b.dmg*(z.armor||1);z.hp-=dealt;z.hit=.1;kayitHasar(dealt,!!b.kr);if(b.kr)kritikFx(z);b.vurdu.push(z);if(!b.del)b.life=0;burst(b.x,b.y,5,'#7a1f1f');
         z.x+=b.vx*.02;z.y+=b.vy*.02;
         if(z.hp<=0){kills++;score+=z.big?50:10;kazan(z);burst(z.x,z.y,14,'#5a1010');dropLoot(z);}
         if(!b.del)break;
@@ -887,6 +893,8 @@ function hud(){
   if(kritik){const a=.12+.1*Math.sin(Date.now()/160),g=cx.createRadialGradient(W/2,H/2,H*.3,W/2,H/2,W*.62);g.addColorStop(0,'rgba(200,0,0,0)');g.addColorStop(1,'rgba(200,0,0,'+a*2+')');cx.fillStyle=g;cx.fillRect(0,0,W,H)}
   const ys=yakinYapi();
   if(ys&&!buildMode){const o=ys.o,l=o.level||1;cx.textAlign='center';cx.font='bold 12px Georgia';cx.fillStyle='#fff1b8';cx.fillText(l>=STRUCT[ys.k].max?'Lv.'+l+' (MAKS)':'F: Yükselt $'+fmtPara(upgPrice(ys.k,l)),o.x-camera.x,o.y-camera.y-30)}
+  const removable=yakinKaldirilabilirYapi();
+  if(removable&&!buildMode){cx.textAlign='center';cx.font='bold 11px Georgia';cx.fillStyle='#b8d86b';cx.fillText('G: Kaldır +$'+fmtPara(removable.o.invested||15),removable.o.x-camera.x,removable.o.y-camera.y+34)}
   // sol üst: durum çubukları
   const bars=[
     ['CAN '+Math.ceil(p.hp)+'/'+mx,p.hp,mx,hpR<.25?'#e0554a':hpR<.5?'#e0953a':'#6fbf5a'],
@@ -934,6 +942,31 @@ function hud(){
     if(cd>0){cx.fillStyle='rgba(0,0,0,.6)';cx.fillRect(x+1,yy+1,42,42*Math.min(1,cd/g[3]))}
     cx.fillStyle='#e6c75a';cx.font='10px Georgia';cx.textAlign='center';cx.fillText(g[2],x+22,yy+57);
   });
+  // Mini harita: sol orta konumda; oyuncu merkezde, yakındaki düşmanlar ve yapılar
+  const mm={x:12,y:H/2-56,w:136,h:112,range:620};
+  cx.fillStyle='rgba(5,10,7,.82)';cx.fillRect(mm.x,mm.y,mm.w,mm.h);
+  cx.strokeStyle='#71856b';cx.lineWidth=1;cx.strokeRect(mm.x+.5,mm.y+.5,mm.w-1,mm.h-1);
+  cx.fillStyle='#9fb092';cx.font='10px Georgia';cx.textAlign='left';cx.fillText('MİNİ HARİTA',mm.x+5,mm.y+11);
+  const mmx=mm.x+mm.w/2,mmy=mm.y+mm.h/2,scale=(mm.w-18)/(mm.range*2);
+  const dot=(x,y,col,r=2.5)=>{const dx=(x-p.x)*scale,dy=(y-p.y)*scale;if(Math.abs(dx)<mm.w/2-7&&Math.abs(dy)<mm.h/2-7){cx.fillStyle=col;cx.beginPath();cx.arc(mmx+dx,mmy+dy,r,0,6.28);cx.fill()}};
+  for(const z of zs)dot(z.x,z.y,'#e34b4b',2.5);
+  for(const w0 of walls)dot(w0.x,w0.y,'#aab6a8',2.3);
+  for(const t0 of turrets)dot(t0.x,t0.y,'#e0953a',3);
+  for(const m0 of ammoMachines)dot(m0.x,m0.y,'#d9b24c',3);
+  for(const h0 of healers)dot(h0.x,h0.y,'#5fc78a',3);
+  cx.fillStyle='#65e08a';cx.beginPath();cx.arc(mmx,mmy,4,0,6.28);cx.fill();cx.strokeStyle='#eaffef';cx.stroke();
+  // Hasar bildirimi, sağ kenarda 2 saniye kalır
+  if(damageLog.length){
+    const x=W-164,y=225;
+    cx.fillStyle='rgba(5,10,7,.72)';cx.fillRect(x,y,154,Math.min(150,damageLog.length*19+10));
+    cx.textAlign='right';cx.font='bold 11px Georgia';
+    damageLog.forEach((d,i)=>{cx.globalAlpha=Math.min(1,d.t/0.35);cx.fillStyle=d.crit?'#ffe06b':'#f0d7d0';cx.fillText((d.crit?'KRİTİK ':'')+'-'+d.amount.toFixed(1),W-18,y+17+i*19)});
+    cx.globalAlpha=1;
+  }
+  if((p.energy||0)>0||p.energyTimer>0){
+    cx.textAlign='left';cx.font='bold 11px Georgia';cx.fillStyle='#54c6d5';
+    cx.fillText('ENERJİ x'+(p.energy||0)+(p.energyTimer>0?'  BOOST '+p.energyTimer.toFixed(1)+'s':''),12,H-76);
+  }
 }
 function loop(t){
   if(!running)return;
@@ -976,7 +1009,49 @@ function refreshGearStats(){
   p.hp=Math.max(0,Math.min(p.maxHp,p.hp+(p.maxHp-old)));
 }
 function playerDamageMultiplier(){return (cheats.damageMultiplier||1)*gearStat('damage')}
-function playerSpeedMultiplier(){return (cheats.speedMultiplier||1)*gearStat('speed')}
+function playerSpeedMultiplier(){return (cheats.speedMultiplier||1)*gearStat('speed')*(p.energyTimer>0?1.5:1)}
+function kayitHasar(amount,crit=false){
+  if(!(amount>0))return;
+  damageLog.unshift({amount,crit,t:2});
+  if(damageLog.length>7)damageLog.length=7;
+}
+function enerjiIc(){
+  if(!running||shopOpen||konOpen||equipOpen||settingsOpen||p.energy<=0)return;
+  p.energy--;
+  const now=performance.now();
+  p.energyUseTimes=(p.energyUseTimes||[]).filter(t=>now-t<30000);
+  p.energyUseTimes.push(now);
+  const strain=p.energyUseTimes.length;
+  p.energyTimer=8;
+  if(strain>=3){
+    const hurt=6*(strain-1);
+    p.hp=Math.max(1,p.hp-hurt);
+    floats.push({x:p.x,y:p.y-24,t:'AŞIRI KAFEİN -'+hurt+' CAN',life:1.5});
+  }
+  floats.push({x:p.x,y:p.y-38,t:'ENERJİ x1.5',life:1.2});
+  soundFx('buy');
+}
+function yakinKaldirilabilirYapi(){
+  let best=null,bd=58;
+  for(const [type,list] of [['wall',walls],['turret',turrets],['ammo',ammoMachines],['heal',healers]]){
+    for(const o of list){const d=Math.hypot(o.x-p.x,o.y-p.y);if(d<bd){bd=d;best={type,o,d}}}
+  }
+  return best;
+}
+function kaldirYapi(){
+  const found=yakinKaldirilabilirYapi();
+  if(!found)return false;
+  const {type,o}=found;
+  const lists={wall:walls,turret:turrets,ammo:ammoMachines,heal:healers};
+  const list=lists[type],idx=list.indexOf(o);
+  if(idx<0)return false;
+  list.splice(idx,1);
+  const refund=Math.max(0,Math.round(o.invested|| (type==='wall'?15:type==='heal'?STRUCT.heal.base:type==='ammo'?STRUCT.ammo.base:STRUCT.turret.base)));
+  p.money+=refund;
+  floats.push({x:o.x,y:o.y-20,t:'YAPI KALDIRILDI +$'+fmtPara(refund),life:1.8});
+  soundFx('build');burst(o.x,o.y,12,'#b8d86b');
+  return true;
+}
 function playerDamageReduction(){return gearStat('damageTaken')}
 function sec(i){if(p.guns[i].own&&i!=p.g){p.g=i;p.reload=0;p.cd=.2}}
 function kazan(z){const v=z.val*(cheats.moneyMult||1);p.money+=v;floats.push({x:z.x,y:z.y,t:'+$'+fmtPara(v),life:1})}
@@ -1078,7 +1153,7 @@ function yakinYapi(){let best=null,bd=UPG_RANGE;for(const k of Object.keys(STRUC
 function upgrade(k,o){
   if(!o||(o.level||1)>=STRUCT[k].max)return false;
   const fy=upgPrice(k,o.level||1);if(p.money<fy)return false;
-  p.money-=fy;o.level=(o.level||1)+1;soundFx('buy');burst(o.x,o.y,14,STRUCT[k].renk);floats.push({x:o.x,y:o.y-20,t:'Lv.'+o.level,life:1});return true;
+  p.money-=fy;o.invested=(o.invested||STRUCT[k].base)+fy;o.level=(o.level||1)+1;soundFx('buy');burst(o.x,o.y,14,STRUCT[k].renk);floats.push({x:o.x,y:o.y-20,t:'Lv.'+o.level,life:1});return true;
 }
 function wallPush(){
   for(const w of walls){
@@ -1113,11 +1188,11 @@ function placeBuild(){
   p.money-=buildMode.price;
   if(buildMode.type==='wall'){
     const horiz=!buildMode.rot;
-    walls.push({x,y,w:horiz?74:18,h:horiz?18:74,hp:100,max:100,rot:buildMode.rot||0});
+    walls.push({x,y,w:horiz?74:18,h:horiz?18:74,hp:100,max:100,rot:buildMode.rot||0,invested:buildMode.price});
   }
-  if(buildMode.type==='turret')turrets.push({x,y,level:1,cd:0,ang:p.ang});
-  if(buildMode.type==='ammo')ammoMachines.push({x,y,tick:0,level:1});
-  if(buildMode.type==='heal')healers.push({x,y,level:1,tick:0});
+  if(buildMode.type==='turret')turrets.push({x,y,level:1,cd:0,ang:p.ang,invested:buildMode.price});
+  if(buildMode.type==='ammo')ammoMachines.push({x,y,tick:0,level:1,invested:buildMode.price});
+  if(buildMode.type==='heal')healers.push({x,y,level:1,tick:0,invested:buildMode.price});
   if(buildMode.type==='bed')beds.push({x,y,hp:80,max:80});
   buildMode=null;
   document.getElementById('buildhint').style.display='none';
@@ -1162,7 +1237,7 @@ function patlat(b){
   for(const z of zs){
     if(z.hp<=0)continue;
     if(Math.hypot(z.x-b.x,z.y-b.y)<b.patla+z.r){
-      z.hp-=b.patdmg;z.hit=.12;
+      z.hp-=b.patdmg;z.hit=.12;kayitHasar(b.patdmg,false);
       if(z.hp<=0)oldur(z);
     }
   }
@@ -1201,6 +1276,7 @@ function renderShop(){
     h+=mkart('Cephane paketi','Malzeme','Sahip olduğun tüm ateşli silahlara bir şarjör.',PAKET,'#d9b24c','<button data-a="paket"'+(p.money<PAKET?' disabled':'')+'>Satın al</button>');
     h+=mkart('İlk yardım','Malzeme','+50 can ve kanamayı durdurur.',60,'#d2584f','<button data-a="can"'+(p.money<60||(p.hp>=(p.maxHp||100)&&!(p.bleed>0))?' disabled':'')+'>Satın al</button>');
     h+=mkart('Yiyecek','Malzeme','Açlığı büyük ölçüde doldurur.',40,'#c9a14c','<button data-a="food"'+(p.money<40||p.hunger>=100?' disabled':'')+'>Satın al</button>');
+    h+=mkart('Enerji İçeceği','Malzeme','8 saniye boyunca hareket hızını x1.5 yapar. 30 saniyede 3. ve sonraki kullanımlar can götürür. X ile iç.',75,'#54c6d5','<button data-a="energy"'+(p.money<75?' disabled':'')+'>Satın al</button>');
     h+=mkart('Taşınabilir Yatak','Malzeme','Yere yerleştir. Yanına gidip F ile dinlen, uykunu doldur.',80,'#8a7ab0','<button data-a="bed"'+(p.money<80?' disabled':'')+'>Yerleştir</button>');
     h+=mkart('Duvar','Savunma','Hareket ederken oyuncunun bulunduğu noktaya 100 dayanıklılıklı duvar kur. R ile yön değiştir.',15,'#8fa68a','<button data-a="duvar"'+(p.money<15?' disabled':'')+'>Yerleştir</button>');
     for(const k of ['turret','ammo','heal']){
@@ -1240,6 +1316,7 @@ shopEl.addEventListener('click',e=>{
   else if(a=='paket'){if(p.money>=PAKET){p.money-=PAKET;WEAPONS.forEach((x,j)=>{if(p.guns[j].own&&!x.melee)p.guns[j].res+=x.mag});soundFx('buy')}}
   else if(a=='can'){if(p.money>=60&&(p.hp<p.maxHp||p.bleed>0)){p.money-=60;p.hp=Math.min(p.maxHp,p.hp+50);p.bleed=0;soundFx('buy')}}
   else if(a=='food'){if(p.money>=40&&p.hunger<100){p.money-=40;p.hunger=Math.min(100,p.hunger+55);soundFx('buy')}}
+  else if(a=='energy'){if(p.money>=75){p.money-=75;p.energy=(p.energy||0)+1;soundFx('buy');floats.push({x:p.x,y:p.y-20,t:'Enerji içeceği +1',life:1.2})}}
   else if(a=='bed'){if(p.money>=80)beginBuild('bed',80)}
   else if(a=='duvar'){if(p.money>=15)beginBuild('wall',15)}
   else if(a=='yeni'){const k=b.dataset.k;if(STRUCT[k]&&p.money>=STRUCT[k].base)beginBuild(k,STRUCT[k].base)}
@@ -1291,7 +1368,7 @@ function vur(w){
     if(d>w.menzil+z.r)continue;
     let da=Math.atan2(dy,dx)-p.ang;da=Math.atan2(Math.sin(da),Math.cos(da));
     if(Math.abs(da)>w.arc/2&&d>p.r+z.r)continue;
-    z.hp-=w.dmg*playerDamageMultiplier();z.hit=.12;burst(z.x,z.y,6,'#7a1f1f');
+    const dealt=w.dmg*playerDamageMultiplier();z.hp-=dealt;z.hit=.12;kayitHasar(dealt,false);burst(z.x,z.y,6,'#7a1f1f');
     z.x+=dx/(d||1)*28;z.y+=dy/(d||1)*28;
     if(z.hp<=0)oldur(z);
   }
@@ -1424,7 +1501,8 @@ addEventListener('keydown',e=>{const k=e.key.toLowerCase();
     soundFx('select');
     floats.push({x:p.x,y:p.y-28,t:lockOn?'LOCK ON':'LOCK OFF',life:1.0});
   }
-  if(running&&!shopOpen&&!e.repeat&&k=='g')gadgetAt('grenade');
+  if(running&&!shopOpen&&!e.repeat&&k=='g'){if(!kaldirYapi())gadgetAt('grenade');} 
+  if(running&&!shopOpen&&!e.repeat&&k=='x')enerjiIc();
   if(running&&!shopOpen&&!e.repeat&&k=='h')gadgetAt('molotov');
   if(running&&!shopOpen&&!e.repeat&&k=='j')gadgetAt('c4');
   if(running&&!e.repeat&&k=='escape'&&buildMode){cancelBuild();return;}
@@ -1501,7 +1579,8 @@ document.getElementById('mReload').addEventListener('touchstart',e=>{e.preventDe
 document.getElementById('mRun').addEventListener('touchstart',e=>{e.preventDefault();keys['run']=true},{passive:false});
 document.getElementById('mRun').addEventListener('touchend',()=>keys['run']=false);
 document.getElementById('mShop').addEventListener('touchstart',e=>{e.preventDefault();openShop()},{passive:false});
-document.getElementById('mGren').addEventListener('touchstart',e=>{e.preventDefault();gadgetAt('grenade')},{passive:false});
+document.getElementById('mGren').addEventListener('touchstart',e=>{e.preventDefault();if(!kaldirYapi())gadgetAt('grenade')},{passive:false});
+document.getElementById('mEnergy').addEventListener('touchstart',e=>{e.preventDefault();enerjiIc()},{passive:false});
 document.getElementById('mSlide').addEventListener('touchstart',e=>{e.preventDefault();kay()},{passive:false});
 
 reset();draw();
