@@ -236,7 +236,9 @@ let damageLog=[];
 function reset(){
   p={x:0,y:0,r:12,hp:100,maxHp:100,baseMaxHp:100,stam:100,money:Z.bas,scrap:0,g:0,reload:0,cd:0,ang:0,gadgetCd:{grenade:0,molotov:0,c4:0},lockTarget:null,accessories:[],accessoryLevels:{},equipped:{},accCap:20,rec:0,kv:0,bleed:0,hunger:100,sleep:100,energy:0,energyTimer:0,energyUseTimes:[],criticalRegen:0,fedTimer:0};
   damageLog=[];
-  p.guns=WEAPONS.map((w,i)=>({own:i==0,ammo:i==0?w.mag:0,res:i==0?w.mag*3:0,upDmg:0,upRate:0,upMag:0,upSpec:0}));
+  // Genel silah geliştirmeleri tek havuzda tutulur ve tüm ateşli silahlara uygulanır.
+  p.sharedWeaponUpgrades={upDmg:0,upRate:0,upMag:0,upReload:0};
+  p.guns=WEAPONS.map((w,i)=>({own:i==0,ammo:i==0?w.mag:0,res:i==0?w.mag*3:0,upSpec:0}));
   zs=[];bs=[];items=[];parts=[];floats=[];rings=[];devices=[];zones=[];walls=[];turrets=[];ammoMachines=[];healers=[];beds=[];flash=0;buildMode=null;
   document.getElementById("buildhint").style.display="none";
   cheats.god=cheats.inf=cheats.explosive=false;cheats.speedMultiplier=1;cheats.damageMultiplier=1;cheats.scrapMult=1;cheats.moneyMultiplier=1;
@@ -1201,13 +1203,20 @@ function bitti(){
 const dk=document.getElementById('dk'),shopEl=document.getElementById('shop');
 function cw(){
   const base=WEAPONS[p.g],g=p.guns[p.g]||{};
-  const dmgLevel=g.upDmg||0,rateLevel=g.upRate||0,magLevel=g.upMag||0,specLevel=g.upSpec||0;
-  const rateMult=1+.1*rateLevel,magMult=1+.1*magLevel,specLv=specLevel/3;
-  // Tüm geliştirmeler aynı doğrusal çarpan dizisini kullanır: x1.0, x1.1, x1.2...
+  const shared=p.sharedWeaponUpgrades||{};
+  const dmgLevel=shared.upDmg||0,rateLevel=shared.upRate||0,magLevel=shared.upMag||0,reloadLevel=shared.upReload||0,specLevel=g.upSpec||0;
+  // Hasar ve ateş hızı sınırları bütün silahlarda geçerlidir; RPG'nin aşırı hızlı ateş etmesini de engeller.
+  const dmgCap=1.8;
+  const rateCap=1.35;
+  const dmgMult=Math.min(1+.1*dmgLevel,dmgCap);
+  const rateMult=Math.min(1+.1*rateLevel,rateCap);
+  const reloadMult=1+.1*reloadLevel;
+  const magMult=1+.1*magLevel,specLv=specLevel/3;
   const specPower=specLv*(1+.1*specLevel);
   const w={...base,
-    dmg:base.dmg*(1+.1*dmgLevel),
+    dmg:base.dmg*dmgMult,
     cd:base.cd/rateMult,
+    rel:base.melee?0:base.rel/reloadMult,
     mag:base.melee?0:Math.min(200,Math.round(base.mag*magMult)),
     specLv
   };
@@ -1584,17 +1593,22 @@ function renderShop(){
     });
     const ug=cw(),uw=cw(),us=cs();
     const addUpgrade=(stat,label,desc,max=15,disabled=false)=>{
-      const key=stat==='dmg'?'upDmg':stat==='rate'?'upRate':'upMag';
-      const lv=us[key]||0,price=weaponUpgradePrice(stat,lv);
-      const full=lv>=max,off=disabled||full||p.scrap<price;
+      const key=stat==='dmg'?'upDmg':stat==='rate'?'upRate':stat==='mag'?'upMag':'upReload';
+      const sharedStat=stat!=='spec';
+      const lv=sharedStat?((p.sharedWeaponUpgrades||{})[key]||0):(us.upSpec||0),price=weaponUpgradePrice(stat,lv);
+      const full=lv>=max,off=disabled||!!uw.melee||full||p.scrap<price;
       const detail=full?'Maksimum seviye':desc+' • Seviye '+lv+'/'+max;
       h+=mkart(label+' '+(lv>=max?'(MAKS)':'Lv.'+lv), 'Silah yükseltme',detail,full?'MAKS':price+' Hurda','#b8d86b',
         '<button data-a="wup" data-stat="'+stat+'"'+(off?' disabled':'')+'>Yükselt</button>');
     };
     h+='<div style="grid-column:1/-1;color:#b8d86b;font-size:19px;margin:8px 0 0">Elindeki silahı yükselt: '+ug.ad+' • Tüm geliştirmeler hurda metal ile alınır.</div>';
-    addUpgrade('dmg','Hasar','Hasar çarpanı her yükseltmede +x0.1 artar. Şu an x'+(1+.1*(us.upDmg||0)).toFixed(1)+' • '+uw.dmg.toFixed(1)+' mevcut hasar.',15);
-    addUpgrade('rate','Ateş hızı','Her seviye atış hızını x1.1 çarpanına taşır. Şu an x'+(1+.1*(us.upRate||0)).toFixed(1)+' • '+(1/uw.cd).toFixed(1)+' atış/sn.',15);
-    addUpgrade('mag','Şarjör','Her seviye kapasiteyi x1.1 çarpanına taşır. Şu an x'+(1+.1*(us.upMag||0)).toFixed(1)+' • '+(uw.melee?'Yakın dövüş silahında kullanılamaz.':uw.mag+' mermi mevcut.'),15,!!uw.melee);
+    const dmgShown=Math.min(1+.1*((p.sharedWeaponUpgrades||{}).upDmg||0),1.8);
+    const rateShown=Math.min(1+.1*((p.sharedWeaponUpgrades||{}).upRate||0),1.35);
+    const reloadShown=1+.1*((p.sharedWeaponUpgrades||{}).upReload||0);
+    addUpgrade('dmg','Hasar','Her seviye +x0.1; tüm ateşli silahlara uygulanır, üst sınır x1.8. Etkin çarpan x'+dmgShown.toFixed(1)+' • '+uw.dmg.toFixed(1)+' hasar.',15,!!uw.melee);
+    addUpgrade('rate','Ateş hızı','Her seviye +x0.1; tüm ateşli silahlara uygulanır, üst sınır x1.35. Etkin çarpan x'+rateShown.toFixed(1)+' • '+(1/uw.cd).toFixed(1)+' atış/sn.',15,!!uw.melee);
+    addUpgrade('mag','Şarjör kapasitesi','Her seviye kapasiteyi x1.1 artırır ve tüm ateşli silahlara uygulanır. Şu an x'+(1+.1*((p.sharedWeaponUpgrades||{}).upMag||0)).toFixed(1)+' • '+(uw.melee?'Yakın dövüş silahında kullanılamaz.':uw.mag+' mermi mevcut.'),15,!!uw.melee);
+    addUpgrade('reload','Hızlı Değişim','Her seviye şarjör yenileme hızını x1.1 artırır ve tüm ateşli silahlara uygulanır. Etkin hız x'+reloadShown.toFixed(1)+' • '+(uw.melee?'Yakın dövüş silahında kullanılamaz.':uw.rel.toFixed(2)+' saniyede yenilenir.'),15,!!uw.melee);
     const spLv=us.upSpec||0,spMax=15,spPrice=weaponUpgradePrice('spec',spLv),sp=WEAPON_SPECIALS[p.g];
     h+=mkart(sp.name+' • Lv.'+spLv+'/'+spMax,'SİLAHA ÖZEL GELİŞTİRME',
       sp.desc+' '+sp.effect(spLv/3)+' • Etki çarpanı x'+(1+.1*spLv).toFixed(1)+(spLv>=spMax?' • Maksimum seviye':''),spLv>=spMax?'MAKS':spPrice+' Hurda','#e6c75a',
@@ -1642,14 +1656,16 @@ shopEl.addEventListener('click',e=>{
   }
   else if(a=='sec')sec(i);
   else if(a=='wup'){
-    const stat=b.dataset.stat,g=cs(),key=stat==='dmg'?'upDmg':stat==='rate'?'upRate':stat==='mag'?'upMag':'upSpec';
-    const max=15,level=g[key]||0,price=weaponUpgradePrice(stat,level);
-    if(level<max&&p.scrap>=price&&!(stat==='mag'&&cw().melee)){
-      p.scrap-=price;g[key]=level+1;
+    const stat=b.dataset.stat,g=cs(),key=stat==='dmg'?'upDmg':stat==='rate'?'upRate':stat==='mag'?'upMag':stat==='reload'?'upReload':'upSpec';
+    const sharedStat=stat!=='spec',target=sharedStat?(p.sharedWeaponUpgrades||(p.sharedWeaponUpgrades={upDmg:0,upRate:0,upMag:0,upReload:0})):g;
+    const max=15,level=target[key]||0,price=weaponUpgradePrice(stat,level);
+    if(level<max&&p.scrap>=price&&!cw().melee){
+      const oldMag=stat==='mag'?cw().mag:0;
+      p.scrap-=price;target[key]=level+1;
       if(stat==='mag'){
-        const oldMag=WEAPONS[p.g].mag*(1+.1*level);
         const newMag=cw().mag;
-        g.ammo=Math.min(newMag,g.ammo+Math.max(0,newMag-Math.round(oldMag)));
+        // Kapasite artışı, o an seçili silahın şarjörüne de yansır.
+        g.ammo=Math.min(newMag,g.ammo+Math.max(0,newMag-oldMag));
       }
       soundFx('buy');
       floats.push({x:p.x,y:p.y-24,t:'SİLAH YÜKSELTİLDİ',life:1.3});
