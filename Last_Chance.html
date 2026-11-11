@@ -1139,7 +1139,7 @@ const STRUCT={
   heal:{ad:'İyileştirme Makinesi',max:20,base:200,renk:'#5fc78a',list:()=>healers,ack:'Yakındaki oyuncuyu zamanla iyileştirir.'}
 };
 function fmtPara(n){return n<1e7?String(Math.round(n)):n.toExponential(2).replace('e+','e')}
-function upgPrice(k,lv){return STRUCT[k].base*Math.pow(2,lv)}
+function upgPrice(k,lv){return Math.round(STRUCT[k].base*Math.pow(1.25,Math.max(0,lv-1)))}
 function turretStat(t){const l=t.level||1;return{dmg:1.5*l,range:330+8*l,cd:Math.max(.06,.62*Math.pow(.95,l-1))}}
 function ammoRadius(m){return 105+5*((m.level||1)-1)}
 function healRadius(h){return 100+4*((h.level||1)-1)}
