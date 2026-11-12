@@ -235,7 +235,7 @@ const ACCESSORIES={
   grip:{name:'Dengeleyici Kabza',slot:'Silah',color:'#7fc4c4',desc:'Silah geri tepmesi %40 azalır.',recoil:.6},
   magnet:{name:'Mıknatıs',slot:'Alet',color:'#e1a84a',desc:'Yerdeki ganimetleri daha uzaktan toplarsın.',pickup:1.6},
   scrapHunter:{name:'Demir Avcısı',slot:'Alet',color:'#aeb7bd',desc:'Hurda düşme ihtimalini +%5 artırır. Her seviyede ilave +%2 sağlar.',scrapChance:.05},
-  celebrate:{name:'Seni Kutluyorum',slot:'Tılsım',color:'#f0c76a',desc:'Yiyecek, mermi ve ilk yardım kutusu gibi normal ganimetlerin düşme ihtimalini +%15 artırır. Her seviyede ilave +%5 sağlar.',supplyDrop:.15},
+  celebrate:{name:'Seni Kutluyorum',slot:'Tılsım',color:'#f0c76a',desc:'Yiyecek, mermi ve ilk yardım kutusu gibi normal ganimetlerin düşme ihtimalini +%15 artırır. Her seviyede ilave +%5 sağlar. Ayrıca "Admiring You" (Jackpot) süresini ve iyileşme hızını yükseltir.',supplyDrop:.15},
   medic:{name:'Saha Sağlık Çantası',slot:'Destek',color:'#e36f78',desc:'İlk yardım ve sağlık makinelerinden alınan iyileşme miktarını %20 artırır.',heal:1.20},
   adrenaline:{name:'Adrenalin Enjektörü',slot:'Destek',color:'#e5a64a',desc:'Dayanıklılık yenilenme hızını %25 artırır.',staminaRegen:1.25},
   clot:{name:'Pıhtılaştırıcı Bandaj',slot:'Destek',color:'#c66d78',desc:'Kanama birikimini %25 azaltır.',bleedResist:.75},
@@ -593,7 +593,8 @@ function kay(){
 }
 function update(dt){
   if(p.criticalRegen>0){
-    p.hp=Math.min(p.maxHp,p.hp+6*dt);
+    const jackpotRate=criticalRegenRate();
+    p.hp=Math.min(p.maxHp,p.hp+jackpotRate*dt);
     p.criticalRegen=Math.max(0,p.criticalRegen-dt);
   }
   // hareket (klavye + mobil joystick)
@@ -1384,7 +1385,12 @@ function accessoryDescription(id){
   if(id==='grip')return 'Silah geri tepmesi %'+Math.round((1-accessoryValue(id,'recoil'))*100)+' azalır.';
   if(id==='magnet')return 'Eşya toplama menzili x'+accessoryValue(id,'pickup').toFixed(2)+' olur.';
   if(id==='scrapHunter')return 'Hurda düşme ihtimali +%'+Math.round(accessoryValue(id,'scrapChance')*100)+' artar.';
-  if(id==='celebrate')return 'Yiyecek, mermi ve ilk yardım kutusu gibi ganimetlerin düşme ihtimali +%'+Math.round(accessoryValue(id,'supplyDrop')*100)+' artar.';
+  if(id==='celebrate'){
+    const lv=accessoryLevel(id);
+    const dur=(5+1.5*(lv-1)).toFixed(1);
+    const rate=(6+1.5*(lv-1)).toFixed(1);
+    return 'Yiyecek, mermi ve ilk yardım kutusu gibi ganimetlerin düşme ihtimali +%'+Math.round(accessoryValue(id,'supplyDrop')*100)+' artar. Admiring You: '+dur+' sn, +'+rate+' can/sn.';
+  }
   if(id==='medic')return 'İyileşme miktarı +%'+Math.round((accessoryValue(id,'heal')-1)*100)+' artar.';
   if(id==='adrenaline')return 'Dayanıklılık yenilenmesi +%'+Math.round((accessoryValue(id,'staminaRegen')-1)*100)+' artar.';
   if(id==='clot')return 'Kanama birikimi %'+Math.round((1-accessoryValue(id,'bleedResist'))*100)+' azalır.';
@@ -1426,10 +1432,22 @@ function refreshGearStats(){
   p.maxHp=Math.min(9999,(p.baseMaxHp||100)+gearBonus('hp'));
   p.hp=Math.max(0,Math.min(p.maxHp,p.hp+(p.maxHp-old)));
 }
+function criticalRegenDuration(){
+  // Temel 5 sn. Seni Kutluyorum kuşanılıysa her seviye +1.5 sn (Lv.5 = 11 sn).
+  if(!equippedAccessory('celebrate'))return 5;
+  return 5+1.5*(accessoryLevel('celebrate')-1);
+}
+function criticalRegenRate(){
+  // Temel 6 can/sn. Seni Kutluyorum kuşanılıysa her seviye +1.5 can/sn (Lv.5 = 12 can/sn).
+  if(!equippedAccessory('celebrate'))return 6;
+  return 6+1.5*(accessoryLevel('celebrate')-1);
+}
 function criticalRegenTrigger(){
   if(p.hp>0&&p.hp<25){
-    p.criticalRegen=5;
-    floats.push({x:p.x,y:p.y-48,t:'JACKPOT! +6 CAN/sn',life:1.5});
+    const dur=criticalRegenDuration();
+    const rate=criticalRegenRate();
+    p.criticalRegen=Math.max(p.criticalRegen||0,dur);
+    floats.push({x:p.x,y:p.y-48,t:'JACKPOT! +'+rate.toFixed(1)+' CAN/sn',life:1.5});
   }
 }
 function playerDamageMultiplier(){return (cheats.damageMultiplier||1)*gearStat('damage')}
@@ -1739,8 +1757,11 @@ function renderShop(){
     addUpgrade('mag','Şarjör kapasitesi','Her seviye kapasiteyi x1.1 artırır ve tüm ateşli silahlara uygulanır. Şu an x'+(1+.1*((p.sharedWeaponUpgrades||{}).upMag||0)).toFixed(1)+' • '+(uw.melee?'Yakın dövüş silahında kullanılamaz.':uw.mag+' mermi mevcut.'),15,!!uw.melee);
     addUpgrade('reload','Hızlı Değişim','Her seviye şarjör yenileme hızını x1.1 artırır ve tüm ateşli silahlara uygulanır. Etkin hız x'+reloadShown.toFixed(1)+' • '+(uw.melee?'Yakın dövüş silahında kullanılamaz.':uw.rel.toFixed(2)+' saniyede yenilenir.'),15,!!uw.melee);
     const spLv=us.upSpec||0,spMax=15,spPrice=weaponUpgradePrice('spec',spLv),sp=WEAPON_SPECIALS[p.g];
+    // Melee'de özel geliştirme seviyesi doğrudan etki eder; ateşlilerde /3 + çarpan kullanılır.
+    const spEffectLevel=uw.melee?spLv:(spLv/3);
+    const spDetail=sp.desc+' '+sp.effect(spEffectLevel)+(uw.melee?'':' • Etki çarpanı x'+(1+.1*spLv).toFixed(1))+(spLv>=spMax?' • Maksimum seviye':'');
     h+=mkart(sp.name+' • Lv.'+spLv+'/'+spMax,'SİLAHA ÖZEL GELİŞTİRME',
-      sp.desc+' '+sp.effect(spLv/3)+' • Etki çarpanı x'+(1+.1*spLv).toFixed(1)+(spLv>=spMax?' • Maksimum seviye':''),spLv>=spMax?'MAKS':spPrice+' Hurda','#e6c75a',
+      spDetail,spLv>=spMax?'MAKS':spPrice+' Hurda','#e6c75a',
       '<button data-a="wup" data-stat="spec"'+(spLv>=spMax||p.scrap<spPrice?' disabled':'')+'>Özel geliştirme</button>');
   }else{
     const f=mermiFiyat(),mel=w.melee;
@@ -1788,7 +1809,9 @@ shopEl.addEventListener('click',e=>{
     const stat=b.dataset.stat,g=cs(),key=stat==='dmg'?'upDmg':stat==='rate'?'upRate':stat==='mag'?'upMag':stat==='reload'?'upReload':'upSpec';
     const sharedStat=stat!=='spec',target=sharedStat?(p.sharedWeaponUpgrades||(p.sharedWeaponUpgrades={upDmg:0,upRate:0,upMag:0,upReload:0})):g;
     const max=15,level=target[key]||0,price=weaponUpgradePrice(stat,level);
-    if(level<max&&p.scrap>=price&&!cw().melee){
+    // Paylaşımlı yükseltmeler sadece ateşli silahlarda; özel geliştirme melee dahil çalışır.
+    const allow=stat==='spec'||!cw().melee;
+    if(level<max&&p.scrap>=price&&allow){
       const oldMag=stat==='mag'?cw().mag:0;
       p.scrap-=price;target[key]=level+1;
       if(stat==='mag'){
