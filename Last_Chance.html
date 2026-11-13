@@ -126,6 +126,7 @@
 <canvas id="c" width="900" height="600"></canvas>
 <button id="dk">Dükkân (V)</button>
 <button id="kb">Komut (T)</button>
+<div id="saveStatus" style="position:fixed;left:50%;top:74px;transform:translateX(-50%);z-index:3;padding:5px 9px;background:rgba(8,12,10,.72);border:1px solid #354535;border-radius:4px;color:#9fb092;font:12px Georgia;display:none">Otomatik kayıt hazır</div>
 <div id="buildhint">Yapı yerleştirme: Hareket ederken tıkla • R: duvar yönü • Esc: iptal</div>
 <div id="shop"></div>
 <div id="equip"></div>
@@ -148,12 +149,14 @@
   <p id="sonuc"></p>
   <div id="zor"></div><p id="zacik"></p>
   <button id="langBtn" style="margin:12px 0 0;font-size:14px;padding:6px 14px;background:#18211a;color:#d8e2d0;border:1px solid #3a4a3a"></button>
-  <button id="btn">Başla</button>
+  <button id="btn">Başla</button><button id="continueBtn" style="display:none;background:#273b2b;color:#d8e2d0;border:1px solid #b8d86b">Kaydı yükle</button>
 </div>
 <script>
 const cv=document.getElementById('c'),cx=cv.getContext('2d');
 // ===== Dil sistemi (TR / EN) =====
 const I18N_EN=[["    Zombi ", "    Zombies "], ["  •  R: yön değiştir", "  •  R: rotate"], [" Bulunduğun noktaya kurulur.", " Placed at your position."], [" Kur", " Build"], [" Yükselt", " Upgrade"], [" aksesuarı oluşturuldu.", " accessory crafted."], [" atış/sn.", " shots/s."], [" azalır.", " reduced."], [" birleşti! Etki seviyesi: ", " merged! Effect level: "], [" can/sn, yarıçap ", " HP/s, radius "], [" en yüksek seviyede (Lv.", " is at max level (Lv."], [" için bir şarjör.", " magazine refill."], [" oluşturuldu.", " crafted."], [" piksel içine yaklaş (veya yanında F tuşuna bas).", " px (or press F next to it)."], [" zombi oluşturuldu.", " zombies spawned."], [" zombi öldürdün, tehdit seviyesi ", " zombies killed, threat level "], [" • Etki çarpanı x", " • Effect multiplier x"], [" • Hasar: x", " • Damage: x"], [" • Hız: x", " • Speed: x"], ["+50 can ve kanamayı durdurur.", "+50 HP and stops bleeding."], ["+Açlık", "+Hunger"], [", şarjörün %", ", mag refill %"], ["8 saniye boyunca hareket hızını x1.5 yapar. Canın 25 altındayken kullanırsan 5 saniye boyunca saniyede 2 can yenilersin. 30 saniyede 3. ve sonraki kullanımlar can götürür. X ile iç.", "Boosts movement speed x1.5 for 8 seconds. If used under 25 HP, you regenerate 2 HP/s for 5 seconds. The 3rd and later uses within 30 seconds drain HP. Drink with X."], ["AKSESUAR BİRLEŞTİ • Lv.", "ACCESSORY MERGED • Lv."], ["Adrenalin Enjektörü", "Adrenaline Injector"], ["Aksesuar sattın +$", "Accessory sold +$"], ["Alev parçacıklarının havada kalma süresini artırır.", "Increases how long flame particles stay in the air."], ["Ateş hızı", "Fire rate"], ["Ateşli", "Firearm"], ["AÇIK", "ON"], ["AÇLIK", "HUNGER"], ["AÇLIK!", "HUNGRY!"], ["Açlığı büyük ölçüde doldurur.", "Greatly restores hunger."], ["Açık", "On"], ["Ağır Darbe", "Heavy Blow"], ["Ağır Makineli", "Heavy MG"], ["Ağır makineli silahın geri tepmesini azaltır.", "Reduces the heavy machine gun's recoil."], ["AŞIRI KAFEİN -", "CAFFEINE OVERDOSE -"], ["BAŞLANGIÇ", "START"], ["BOSS  •  SEVİYE ", "BOSS  •  LEVEL "], ["BOSS GELİYOR!", "BOSS INCOMING!"], ["BOSS YENİLDİ! DÜŞMANLAR GÜÇLENDİ", "BOSS DEFEATED! ENEMIES GROW STRONGER"], ["Balta darbelerinin erişim mesafesini artırır.", "Increases the reach of axe swings."], ["Barrett M82 modelinden esinlenen keskin nişancı tüfeği. Oyun dengesi için özellikleri uyarlanmıştır.", "Sniper rifle inspired by the Barrett M82. Stats adapted for game balance."], ["Bütün silahları cephaneleriyle verir.", "Gives all weapons with their ammo."], ["Bıçağın kritik vuruş ihtimalini artırır.", "Increases the knife's critical hit chance."], ["CEPHANE BİTTİ", "OUT OF AMMO"], ["Can, açlık, uyku doldu", "HP, hunger and sleep restored"], ["Can, dayanıklılık, açlık ve uykuyu doldurur.", "Restores HP, stamina, hunger and sleep."], ["Canı doldur", "Restore HP"], ["Cephane", "Ammo"], ["Cephane paketi", "Ammo pack"], ["Cephane ve ekipman bekleme süresi harcanmaz.", "Ammo and gear cooldowns are not consumed."], ["Colt Python modelinden esinlenen altıpatlar. Oyun dengesi için özellikleri uyarlanmıştır.", "Revolver inspired by the Colt Python. Stats adapted for game balance."], ["Daha hızlı, daha sert ve daha kalabalık. Hurda daha az.", "Faster, tougher and more numerous. Less scrap."], ["Dayanıklılık yenilenme hızını %25 artırır.", "Increases stamina regeneration by 25%."], ["Dayanıklılık yenilenmesi +%", "Stamina regeneration +%"], ["Delip geçtiği hedeflerde hasar kaybını azaltır.", "Reduces damage loss on targets it pierces through."], ["Demir Avcısı", "Iron Hunter"], ["Dengeli Gövde", "Balanced Body"], ["Duvar oluşturuldu.", "Wall built."], ["Dövüşçü Bilekliği", "Fighter's Wristband"], ["Dükkân V", "Shop V"], ["Dünya", "World"], ["ENERJİ x", "ENERGY x"], ["ENERJİ x1.5", "ENERGY x1.5"], ["Ekrandaki bütün zombileri öldürür.", "Kills all zombies on screen."], ["En yakın yapı Lv.", "Nearest structure Lv."], ["Enerji içeceği +1", "Energy drink +1"], ["Enerji İçeceği", "Energy Drink"], ["Estwing E3-FF4 tipi ağır balyoz. Oyundaki değerleri denge amacıyla uyarlanmıştır.", "Heavy sledgehammer inspired by the Estwing E3-FF4. Stats adapted for balance."], ["Eşya toplama menzili x", "Pickup range x"], ["F: Yükselt $", "F: Upgrade $"], ["Fiskars X27 yarma baltası. Oyundaki değerleri denge amacıyla uyarlanmıştır.", "Splitting axe inspired by the Fiskars X27. Stats adapted for balance."], ["G: Kaldır +$", "G: Remove +$"], ["Ganimet ve aksesuar bulma şansı +%", "Loot and accessory find chance +%"], ["Geliştirilmiş Dişler", "Improved Teeth"], ["Geniş Patlama", "Wide Blast"], ["Geniş Saçma", "Wide Spread"], ["Girdiğin miktarda hurda metal verir.", "Gives scrap metal in the amount you enter."], ["Girdiğin miktarı ekler.", "Adds the amount you enter."], ["Glock 18 modelinden esinlenen başlangıç tabancası. Oyun dengesi için özellikleri uyarlanmıştır.", "Starter pistol inspired by the Glock 18. Stats adapted for game balance."], ["Gövde", "Body"], ["Güç Eldiveni", "Power Gloves"], ["HK MP5 modelinden esinlenen hafif makineli. Oyun dengesi için özellikleri uyarlanmıştır.", "SMG inspired by the HK MP5. Stats adapted for game balance."], ["HUD aç", "HUD on"], ["Hareket ederken oyuncunun bulunduğu noktaya 100 dayanıklılıklı duvar kur. R ile yön değiştir.", "Builds a wall with 100 durability at your position while moving. R rotates it."], ["Hareket hızı %", "Movement speed %"], ["Hareket hızı %22 artar.", "Movement speed +22%."], ["Hareket hızı. 1 = normal, en fazla 10.", "Movement speed. 1 = normal, max 10."], ["Hasar", "Damage"], ["Hasar ", "Damage "], ["Hasar koruması: %", "Damage protection: %"], ["Hasar çarpanı", "Damage multiplier"], ["Hasar çarpanı: x", "Damage multiplier: x"], ["Hasar: +%", "Damage: +%"], ["Hayatta kalamadın", "You did not survive"], ["Hem hurda düşme ihtimalini hem hurda miktarını çarpar. x100, ihtimali %100 yapar.", "Multiplies both the scrap drop chance and amount. x100 makes the chance 100%."], ["Henüz bu türden bir yapın yok.", "You don't have a structure of this type yet."], ["Her atışta daha fazla saçma gönderir.", "Fires more pellets per shot."], ["Her kullanımda +15 (başlangıç 20, en fazla 35).", "+15 per use (starts at 20, max 35)."], ["Her seviye +x0.1; tüm ateşli silahlara uygulanır, üst sınır x1.35. Etkin çarpan x", "Each level +x0.1; applies to all firearms, cap x1.35. Effective multiplier x"], ["Her seviye +x0.1; tüm ateşli silahlara uygulanır, üst sınır x1.8. Etkin çarpan x", "Each level +x0.1; applies to all firearms, cap x1.8. Effective multiplier x"], ["Her seviye kapasiteyi x1.1 artırır ve tüm ateşli silahlara uygulanır. Şu an x", "Each level raises capacity by x1.1 and applies to all firearms. Currently x"], ["Her seviye şarjör yenileme hızını x1.1 artırır ve tüm ateşli silahlara uygulanır. Etkin hız x", "Each level raises reload speed by x1.1 and applies to all firearms. Effective speed x"], ["Hileler varsayılana döndü.", "Cheats reset to defaults."], ["Hurda düşme ihtimali +%", "Scrap drop chance +%"], ["Hurda düşme ihtimalini +%5 artırır. Her seviyede ilave +%2 sağlar.", "Raises scrap drop chance by +5%. Adds +2% more each level."], ["Hurda çarpanı", "Scrap multiplier"], ["Hız çarpanı", "Speed multiplier"], ["Hız çarpanı: x", "Speed multiplier: x"], ["Hızlandırılmış Namlu", "Accelerated Barrel"], ["Hızlı", "Fast"], ["Hızlı Değişim", "Quick Swap"], ["Hızlı Tetik", "Quick Trigger"], ["Hızlı Zombi", "Fast Zombie"], ["KA-BAR USMC modelinden esinlenen bıçak. Oyun dengesi için özellikleri uyarlanmıştır.", "Knife inspired by the KA-BAR USMC. Stats adapted for game balance."], ["KANAMA ", "BLEEDING "], ["KANAMA: ilk yardım al", "BLEEDING: use first aid"], ["KARŞI VURUŞ!", "COUNTER STRIKE!"], ["KRİTİK ", "CRIT "], ["KRİTİK CAN!", "CRITICAL HP!"], ["KRİTİK!", "CRITICAL!"], ["KUŞANILDI", "EQUIPPED"], ["Kanama birikimini %25 azaltır.", "Reduces bleed buildup by 25%."], ["Kanca Uç", "Hook Tip"], ["Keskin Ağız", "Sharp Edge"], ["Keskin Nişancı", "Sniper"], ["Kolay", "Easy"], ["Koşu Botları", "Running Boots"], ["Kritik vuruş ihtimalini artırır.", "Increases critical hit chance."], ["Kritik vuruşların hasar çarpanını yükseltir.", "Raises the critical hit damage multiplier."], ["Kritik çarpanı: x", "Critical multiplier: x"], ["Kritik şansı: +%", "Critical chance: +%"], ["Kullanım: hasar 2  (2 kat hasar)", "Usage: damage 2  (double damage)"], ["Kuşan", "Equip"], ["Kuşan L", "Equip L"], ["Levyenin erişim mesafesini artırır.", "Increases the crowbar's reach."], ["M2 Flamethrower modelinden esinlenen kurgu ekipman. Oyun içi menzili ve değerleri uyarlanmıştır.", "Fictional gear inspired by the M2 Flamethrower. Range and stats adapted for the game."], ["M249 SAW modelinden esinlenen hafif makineli. Oyun dengesi için özellikleri uyarlanmıştır.", "LMG inspired by the M249 SAW. Stats adapted for game balance."], ["M4A1 modelinden esinlenen piyade tüfeği. Oyun dengesi için özellikleri uyarlanmıştır.", "Infantry rifle inspired by the M4A1. Stats adapted for game balance."], ["MERMİ MAKİNESİ", "AMMO MACHINE"], ["MERMİ ∞", "AMMO ∞"], ["MEYVE DÜŞTÜ", "FRUIT DROPPED"], ["Maksimum can +30. Gelen hasar %15 azalır.", "Max HP +30. Damage taken reduced by 15%."], ["Maksimum can ayarlandı: ", "Max HP set: "], ["Menzil", "Range"], ["Menzil: +", "Range: +"], ["Mermi hızı: +%", "Bullet speed: +%"], ["Mermi makinesi oluşturuldu.", "Ammo machine built."], ["Mermilerin uçuş hızını artırır.", "Increases bullet flight speed."], ["Metal Beyzbol Sopası", "Metal Baseball Bat"], ["Metal beyzbol sopasının kritik vuruş ihtimalini artırır.", "Increases the metal baseball bat's critical hit chance."], ["Metal gövdeli beyzbol sopası. Dengeli menzil ve hasara sahip yakın dövüş ekipmanı.", "Metal baseball bat. A melee tool with balanced range and damage."], ["Mühimmat Kemeri", "Ammo Belt"], ["MİNİ HARİTA", "MINI MAP"], ["Mıknatıs", "Magnet"], ["Namlu Ayarı", "Barrel Tuning"], ["Normal Zombi", "Normal Zombie"], ["Normal ganimet ve aksesuar bulma şansın artar.", "Raises your chance to find normal loot and accessories."], ["Para ekle", "Add money"], ["Para çarpanı", "Money multiplier"], ["Para: $", "Money: $"], ["Patlama alanını büyütür.", "Enlarges the blast area."], ["Patlama yarıçapı: +", "Blast radius: +"], ["Patlayıcı", "Explosive"], ["Patlayıcı mermi", "Explosive ammo"], ["Pompalı", "Shotgun"], ["Pıhtılaştırıcı Bandaj", "Clotting Bandage"], ["RPG-7 modelinden esinlenen kurgu roketatar. Oyun içi etkisi denge amacıyla uyarlanmıştır.", "Fictional rocket launcher inspired by the RPG-7. In-game effect adapted for balance."], ["Remington 870 pompalı tüfek. Oyun dengesi için özellikleri uyarlanmıştır.", "Shotgun inspired by the Remington 870. Stats adapted for game balance."], ["STIHL MS 261 modelinden esinlenen motorlu testere. Oyun içi yakın dövüş ekipmanıdır.", "Chainsaw inspired by the STIHL MS 261. A melee tool in the game."], ["Saha Sağlık Çantası", "Field Medical Kit"], ["Sahip olduğun tüm ateşli silahlara bir şarjör.", "One magazine for every firearm you own."], ["Saldırı hızı: +%", "Attack speed: +%"], ["Sattın +$", "Sold +$"], ["Saçma: +", "Pellets: +"], ["Saçılma: -%", "Spread: -%"], ["Sağlık Makinesi", "Health Machine"], ["Sağlık makinesi oluşturuldu.", "Health machine built."], ["Seri atış sırasında saçılmayı azaltır.", "Reduces spread during rapid fire."], ["Silah", "Weapon"], ["Silah geri tepmesi %", "Weapon recoil %"], ["Silah geri tepmesi %40 azalır.", "Weapon recoil reduced by 40%."], ["Silah yükseltme", "Weapon upgrade"], ["Silah, aksesuar ve yapı satışından / iadesinden kazandığın parayı çarpar. 1 = normal.", "Multiplies money from selling or refunding weapons, accessories and structures. 1 = normal."], ["Stanley FatMax tipi dayanıklı levye. Oyunda yakın dövüş ekipmanı olarak kullanılır.", "Sturdy crowbar inspired by the Stanley FatMax. Used as a melee tool in the game."], ["Süre: +", "Duration: +"], ["SİLAH YÜKSELTİLDİ", "WEAPON UPGRADED"], ["SİLAHA ÖZEL GELİŞTİRME", "WEAPON-SPECIFIC UPGRADE"], ["Sırt", "Back"], ["TEHDİT ", "THREAT "], ["Taret oluşturuldu.", "Turret built."], ["Taşınabilir Yatak", "Portable Bed"], ["Tekrar dene", "Try again"], ["Temel maksimum canı ayarlar ve canı doldurur.", "Sets the base maximum HP and restores HP."], ["Testerenin saldırı aralığını azaltır.", "Reduces the chainsaw's attack interval."], ["Toplanan cephane miktarını %25 artırır.", "Increases collected ammo by 25%."], ["Tüfek", "Rifle"], ["Tüm mermiler çarptığı yerde patlar.", "All bullets explode on impact."], ["Tüm silahlar", "All weapons"], ["Tüm silahlar verildi", "All weapons given"], ["Tüm zombiler öldürüldü", "All zombies killed"], ["Türkçe: tanri, sonsuzmermi, hiz, hasar, patlayicimermi, para, hurda [miktar], can, tumsilahlar, oldur, zombi", "Commands: god, infiniteammo, speed, damage, explosiveammo, money, scrap [amount], heal, giveall, killall, zombie"], ["Tılsım", "Charm"], ["UYKU", "SLEEP"], ["Uzatılmış Sap", "Extended Handle"], ["Verdiğin hasar %", "Damage you deal %"], ["Verdiğin hasar %25 artar.", "Damage you deal +25%."], ["Verdiğin hasar. 1 = normal, en fazla 50.", "Damage you deal. 1 = normal, max 50."], ["YERLEŞTİRİLİYOR: ", "PLACING: "], ["Yakın dövüş", "Melee"], ["Yakın dövüş  •  cephane yok", "Melee  •  no ammo"], ["Yakın dövüş saldırı aralığı %", "Melee attack interval %"], ["Yakın dövüş silahlarının saldırı aralığını %12 azaltır.", "Reduces melee attack interval by 12%."], ["Yakın dövüş silahında kullanılamaz.", "Cannot be used on melee weapons."], ["Yakındaki oyuncuyu zamanla iyileştirir.", "Heals nearby players over time."], ["Yakındaki zombilere otomatik ateş eder.", "Automatically shoots nearby zombies."], ["Yakındayken yedek cephaneyi doldurur.", "Refills reserve ammo while you are nearby."], ["Yapı çok uzakta. ", "Structure too far away. Move within "], ["Yarıçap ", "Radius "], ["Yatak oluşturuldu.", "Bed built."], ["Yavaş ve zayıf zombiler, bol hurda. $50 başlangıç paran var.", "Slow and weak zombies, lots of scrap. You start with $50."], ["Yağmacı Çantası", "Looter's Bag"], ["Yağmur", "Rain"], ["Yerdeki ganimetleri daha uzaktan toplarsın.", "Lets you pick up ground loot from farther away."], ["Yere yerleştir. Yanına gidip F ile dinlen, uykunu doldur.", "Place on the ground. Walk next to it and press F to rest and restore sleep."], ["Yiyecek, mermi ve ilk yardım kutusu gibi ganimetlerin düşme ihtimali +%", "Drop chance of loot like food, ammo and first aid kits +%"], ["Yiyecek, mermi ve ilk yardım kutusu gibi normal ganimetlerin düşme ihtimalini +%15 artırır. Her seviyede ilave +%5 sağlar.", "Raises the drop chance of normal loot like food, ammo and first aid kits by +15%. Adds +5% more each level."], ["Zombi oluştur", "Spawn zombies"], ["Zombilerden ve patlamalardan hasar almazsın.", "You take no damage from zombies or explosions."], ["Zombileri öldür", "Kill zombies"], ["Zor", "Hard"], ["Zırh Delici Uç", "Armor-Piercing Tip"], ["Zırhlı", "Armored"], ["Zırhlı Zombi", "Armored Zombie"], ["aksesuar: kapasite +15 (başlangıç 20, maks 35)", "accessory: capacity +15 (starts at 20, max 35)"], ["açık", "on"], ["hiz komutu sayısız yazılırsa x1.8 / x1 arasında geçiş yapar.", "Using the speed command without a number toggles between x1.8 / x1."], ["kapalı", "off"], ["patlayıcımermi", "explosiveammo"], ["ÇANTADA", "IN BAG"], ["ÇAĞRI!", "SUMMON!"], ["Çekicin verdiği hasarı artırır.", "Increases the hammer's damage."], ["Çok sayıda, çok dayanıklı zombi. Hurda ve cephane kıt.", "Huge numbers of very tough zombies. Scrap and ammo are scarce."], ["Çıkar", "Remove"], ["Öldürme ", "Kills "], ["Örnek: can 250 (maks can), hiz 2.5, hasar 3", "Example: heal 250 (max HP), speed 2.5, damage 3"], ["Özel", "Special"], ["Özel Zombi", "Special Zombie"], ["Ücretsiz", "Free"], ["İYİLEŞTİRME MAKİNESİ", "HEALING MACHINE"], ["İlk Yardım", "First Aid"], ["İlk yardım", "First aid"], ["İlk yardım ve sağlık makinelerinden alınan iyileşme miktarını %20 artırır.", "Increases healing from first aid and health machines by 20%."], ["İri", "Big"], ["İri Zombi", "Big Zombie"], ["İstenen sayıda zombi ekler (en fazla 500).", "Spawns the number of zombies you enter (max 500)."], ["İyileşme miktarı +%", "Healing amount +%"], ["İyileştirme Makinesi", "Healing Machine"], ["Şarjör", "Magazine"], ["Şarjör kapasitesi", "Magazine capacity"], ["  •  TIKLA  •  Esc: iptal", "  •  CLICK  •  Esc: cancel"], [" (MAKS)", " (MAX)"], [" CAN", " HP"], [" HURDA", " SCRAP"], [" Hurda", " Scrap"], [" Yetersiz para.", " Not enough money."], [" hurda metal eklendi. Toplam: ", " scrap added. Total: "], [" • Maksimum seviye", " • Max level"], [" • Seviye ", " • Level "], [" • Yedek: ", " • Reserve: "], ["(MAKS)", "(MAX)"], ["AKSESUAR MAKS • +8 HURDA", "ACCESSORY MAX • +8 SCRAP"], ["AKSESUAR: ", "ACCESSORY: "], ["Aksesuar kapasitesi", "Accessory capacity"], ["Aksesuar kapasitesi zaten maksimum: 35", "Accessory capacity is already at maximum: 35"], ["Aksesuar kapasitesi: ", "Accessory capacity: "], ["Alan etkisi", "Area effect"], ["Alet", "Tool"], ["Alev Atar", "Flamethrower"], ["Ayak", "Feet"], ["Bilinmeyen komut. \"help\" yaz.", "Unknown command. Type \"help\"."], ["Bomba", "Grenade"], ["C4 KURULDU • J: PATLAT", "C4 PLANTED • J: DETONATE"], ["CAN ", "HP "], ["DAYANIKLILIK", "STAMINA"], ["DUVAR", "WALL"], ["Dengeleyici", "Stabilizer"], ["Dengeleyici Kabza", "Stabilizer Grip"], ["Dengeli bir hayatta kalma deneyimi.", "A balanced survival experience."], ["Destek", "Support"], ["Dinlendin +Uyku", "Rested +Sleep"], ["Duvar", "Wall"], ["Ekle", "Add"], ["Ekonomi", "Economy"], ["Elindeki silah cephane kullanmaz.", "Your current weapon uses no ammo."], ["Esc ile konsolu kapat", "Esc closes the console"], ["F: Dinlen", "F: Rest"], ["Geri tepme: -%", "Recoil: -%"], ["God modu", "God mode"], ["HASAR x", "DAMAGE x"], ["HIZ x", "SPEED x"], ["HURDA METAL +", "SCRAP METAL +"], ["HURDA x", "SCRAP x"], ["Hafif Makineli", "SMG"], ["Hepsi", "All"], ["Hurda ekle", "Add scrap"], ["JACKPOT! +6 CAN/sn", "JACKPOT! +6 HP/s"], ["KAPALI", "OFF"], ["Kanama birikimi %", "Bleed buildup %"], ["Kompozit Yelek", "Composite Vest"], ["Komut konsolu. \"help\" yaz.", "Command console. Type \"help\"."], ["Kritik Mekanizma", "Critical Mechanism"], ["Kâbus", "Nightmare"], ["Otomatik Taret", "Auto Turret"], ["Oyuncu", "Player"], ["PARA x", "MONEY x"], ["PATLAYICI", "EXPLOSIVE"], ["Roketatar", "Rocket Launcher"], ["SERSEM", "STUNNED"], ["SERSEM • 5 SN", "STUNNED • 5 S"], ["Savunma", "Defense"], ["Silahlar", "Weapons"], ["Sis", "Fog"], ["Sonsuz mermi", "Infinite ammo"], ["TARET", "TURRET"], ["TOK ", "FULL "], ["TOK • 60 SN", "FULL • 60 S"], ["Tabanca", "Pistol"], ["Taret", "Turret"], ["Toplanan cephane x", "Ammo pickup x"], ["UYKUSUZLUK!", "SLEEPLESS!"], ["Uygula", "Apply"], ["Uzun Alev", "Long Flame"], ["YAPI KALDIRILDI +$", "STRUCTURE REMOVED +$"], ["YATAK", "BED"], ["Yarat", "Create"], ["Yatak", "Bed"], ["Yeni ", "New "], ["Yiyecek", "Food"], ["Yok", "None"], ["Sat $", "Sell $"], ["Seç", "Select"], ["Satın al", "Buy"], ["Yerleştir", "Place"], ["Özel geliştirme", "Special upgrade"], ["Oyuncunun önünde oluştur.", "Created in front of the player."], ["Oyuna dön (B)", "Back to game (B)"], ["İpucu: Aynı aksesuarlar otomatik birleşir. En yüksek seviye 5.", "Tip: Identical accessories merge automatically. Max level 5."], ["Kapat (L / Esc)", "Close (L / Esc)"], ["Performans şeması", "Performance chart"], ["Tekrarını bulduğunda birleşir ve etkisi artar.", "Merges when you find a duplicate and its effect grows."], ["Aksesuar", "Accessory"], ["Seçtiğin aksesuarı oluştur.", "Create the accessory you select."], ["Henüz aksesuar bulmadın. Zombileri yenerek ganimet düşür.", "You haven't found any accessories yet. Defeat zombies to get loot."], ["Takılı aksesuarlar özelliklerini birlikte uygular.", "Equipped accessories apply their effects together."], ["Can: ", "HP: "], ["Kuşanma", "Equipment"], ["Elinde: ", "In hand: "], ["Silah ve Savunma Dükkânı", "Weapon & Defense Shop"], ["Elindeki silahı yükselt: ", "Upgrade current weapon: "], ["Şarjör: ", "Magazine: "], ["Elinde", "In hand"], ["Tüm geliştirmeler hurda metal ile alınır.", "All upgrades are bought with scrap metal."], ["Komut satırı: help yazıp Enter'a bas", "Command line: type help and press Enter"], ["Şehir düştü. Elinde bir tabanca ve sınırlı cephane var. Her 100 zombi öldürdüğünde bir Boss gelir; Boss yenilince düşmanlar güçlenir.", "The city has fallen. You have a pistol and limited ammo. Every 100 kills a Boss arrives; when the Boss falls, enemies grow stronger."], ["1-0, Q/E, tekerlek", "1-0, Q/E, wheel"], [": C4 kur / patlat  ", ": plant / detonate C4  "], [": Enerji içeceği  ", ": Energy drink  "], [": HUD gizle  ", ": hide HUD  "], [": Lock on (aç/kapa)", ": Lock on (toggle)"], [": Molotof  ", ": Molotov  "], [": Ses / Ayarlar", ": Sound / Settings"], [": Yakındaki yapıyı kaldır / yoksa el bombası  ", ": remove nearby structure / otherwise grenade  "], [": ateş", ": fire"], [": hareket  ", ": move  "], [": koş  ", ": run  "], [": kuşanma  ", ": equipment  "], [": malzeme / silah dükkânı  ", ": supplies / weapon shop  "], [": nişan  ", ": aim  "], [": silah seç", ": select weapon"], [": yapıyı kaldır", ": remove structure"], [": yapıyı yükselt / yatak  ", ": upgrade structure / bed  "], [": yerde kay", ": slide"], [": şarjör değiştir  ", ": reload  "], ["ATEŞ", "FIRE"], ["Başla", "Start"], ["Dükkân (V)", "Shop (V)"], ["Fare", "Mouse"], ["Hile Paneli", "Cheat Panel"], ["Hileler panel kapanınca da açık kalır.", "Cheats stay on after the panel closes."], ["KAY", "SLIDE"], ["KOŞ", "RUN"], ["Kapat (Esc)", "Close (Esc)"], ["Komut (T)", "Command (T)"], ["Tıkla", "Click"], ["Varsayılana dön", "Reset to defaults"], ["WASD / Oklar", "WASD / Arrows"], ["Yapı yerleştirme: Hareket ederken tıkla • R: duvar yönü • Esc: iptal", "Placing structures: click while moving • R: wall direction • Esc: cancel"], ["Zombileri öldürerek hurda metal kazan, silahlarını hurdayla yükselt. Sonsuz haritada hayatta kal.", "Earn scrap metal by killing zombies and upgrade your weapons with it. Survive on the endless map."], ["Ayar M", "Settings M"]];
+I18N_EN.push(...[["Çifte Namlu", "Double Barrel"], ["Çelik Yaylı Arbalet", "Steel Crossbow"], ["Tırpan", "Scythe"], ["Bombaatar", "Grenade Launcher"], ["İki namlulu kısa pompalı. Yakın mesafede çok sert vurur, her atışta 10 saçma gönderir.", "Short double-barrel shotgun. Hits very hard up close and fires 10 pellets per shot."], ["Sessiz ve delici oklar atar. Her atıştan sonra yeniden gerilmesi gerekir.", "Fires silent, piercing bolts. Must be re-cocked after every shot."], ["Hızlı ve keskin bir kılıç. Seri vuruşlar için idealdir.", "A fast, sharp sword. Ideal for rapid strikes."], ["Çok geniş bir yay çizen uzun saplı tırpan. Kalabalıkları biçer.", "A long-handled scythe with a very wide arc. Mows down crowds."], ["Çarptığı yerde küçük alan hasarlı patlama yapan bombalar atar.", "Launches bombs that cause a small area explosion on impact."], ["Çok yüksek ateş hızına sahip döner namlulu ağır silah. Cephaneyi hızla tüketir.", "Heavy rotary-barrel weapon with a very high fire rate. Burns through ammo fast."], ["Sıkı Boğaz", "Tight Choke"], ["Saçmaların dağılmasını azaltır.", "Reduces pellet spread."], ["Çelik Uç", "Steel Tip"], ["Okların delip geçtiği hedeflerde hasar kaybını azaltır.", "Reduces damage loss on targets the bolts pierce through."], ["Keskin Bileme", "Keen Edge"], ["Katananın kritik vuruş ihtimalini artırır.", "Increases the katana's critical hit chance."], ["Uzun Sap", "Long Shaft"], ["Tırpanın erişim mesafesini artırır.", "Increases the scythe's reach."], ["Geniş Şarapnel", "Wide Shrapnel"], ["Bombaların patlama alanını büyütür.", "Enlarges the bombs' blast area."], ["Soğutmalı Namlu", "Cooled Barrel"], ["Minigunun geri tepmesini azaltır.", "Reduces the minigun's recoil."], ["Otomatik kayıt: 60 sn", "Autosave: 60 s"]]);
+I18N_EN.push(...[["Otomatik kayıt: ", "Autosave: "], ["Kayıt alındı", "Game saved"], ["Kayıt yüklendi", "Save loaded"], ["Kayıt başarısız: depolama alanı", "Save failed: storage full"], ["GÜDÜMLÜ • LOCK ON", "GUIDED • LOCK ON"], ["NOKTA ATIŞI • LOCK OFF", "POINT STRIKE • LOCK OFF"], ["KİLİTLENDİ", "LOCKED ON"], ["HEDEF YOK", "NO TARGET"], ["İki modlu omuzdan atılan füze. Lock On açıkken güdümlü füze hedefi takip eder; kapalıyken fareyle seçtiğin noktaya yukarıdan düşer.", "Dual-mode shoulder-fired missile. With Lock On enabled it fires a guided missile that tracks its target; with it off, it drops from above onto the point you select with the mouse."], ["Geniş Başlık", "Wide Warhead"], ["Füzenin patlama alanını büyütür.", "Enlarges the missile's blast radius."], ["Eski ortak geliştirmeler iade edildi: +", "Old shared upgrades refunded: +"], ["yalnızca bu silaha uygulanır, üst sınır x1.8", "applies only to this weapon, cap x1.8"], ["yalnızca bu silaha uygulanır, üst sınır x1.35", "applies only to this weapon, cap x1.35"], ["ve yalnızca bu silaha uygulanır. Şu an x", "and applies only to this weapon. Currently x"], ["ve yalnızca bu silaha uygulanır. Etkin hız x", "and applies only to this weapon. Effective speed x"]]);
 let LANG=(()=>{try{const v=localStorage.getItem('lc_lang');if(v==='tr'||v==='en')return v}catch(e){}return String(navigator.language||'tr').toLowerCase().startsWith('tr')?'tr':'en'})();
 const _i18nMap=new Map(I18N_EN),_i18nRe=new RegExp(I18N_EN.map(x=>x[0]).sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g'),_i18nCache=new Map();
 function tt(t){
@@ -206,7 +209,14 @@ const WEAPONS=[
  {ad:'RPG-7',model:'rocket',fiyat:1500,mag:4,cd:.6,pel:1,spr:.01,dmg:0,hiz:520,rel:2.6,patla:95,patdmg:8,renk:'#ff5a3a',boy:5,ses:70,ack:'RPG-7 modelinden esinlenen kurgu roketatar. Oyun içi etkisi denge amacıyla uyarlanmıştır.'},
  {ad:'Stanley FatMax Levye',model:'crowbar',fiyat:110,melee:true,mag:0,cd:.52,pel:0,spr:0,dmg:4,hiz:0,rel:0,menzil:62,arc:1.65,ses:75,ack:'Stanley FatMax tipi dayanıklı levye. Oyunda yakın dövüş ekipmanı olarak kullanılır.'},
  {ad:'KA-BAR USMC',model:'knife',fiyat:145,melee:true,mag:0,cd:.24,pel:0,spr:0,dmg:2.2,hiz:0,rel:0,menzil:43,arc:1.35,ses:55,ack:'KA-BAR USMC modelinden esinlenen bıçak. Oyun dengesi için özellikleri uyarlanmıştır.'},
- {ad:'Metal Beyzbol Sopası',model:'bat',fiyat:180,melee:true,mag:0,cd:.48,pel:0,spr:0,dmg:5.2,hiz:0,rel:0,menzil:64,arc:1.55,ses:85,ack:'Metal gövdeli beyzbol sopası. Dengeli menzil ve hasara sahip yakın dövüş ekipmanı.'}
+ {ad:'Metal Beyzbol Sopası',model:'bat',fiyat:180,melee:true,mag:0,cd:.48,pel:0,spr:0,dmg:5.2,hiz:0,rel:0,menzil:64,arc:1.55,ses:85,ack:'Metal gövdeli beyzbol sopası. Dengeli menzil ve hasara sahip yakın dövüş ekipmanı.'},
+ {ad:'Çifte Namlu',model:'dshotgun',fiyat:340,mag:2,cd:.35,pel:10,spr:.5,dmg:1,hiz:620,rel:1.9,omur:.3,ses:100,ack:'İki namlulu kısa pompalı. Yakın mesafede çok sert vurur, her atışta 10 saçma gönderir.'},
+ {ad:'Çelik Yaylı Arbalet',model:'crossbow',fiyat:420,mag:1,cd:1.1,pel:1,spr:.01,dmg:5,hiz:950,rel:1.3,delici:true,renk:'#d8d2b8',boy:3,ses:35,ack:'Sessiz ve delici oklar atar. Her atıştan sonra yeniden gerilmesi gerekir.'},
+ {ad:'Katana',model:'katana',fiyat:260,melee:true,mag:0,cd:.3,pel:0,spr:0,dmg:3.4,hiz:0,rel:0,menzil:60,arc:1.5,ses:50,ack:'Hızlı ve keskin bir kılıç. Seri vuruşlar için idealdir.'},
+ {ad:'Tırpan',model:'scythe',fiyat:700,melee:true,mag:0,cd:.65,pel:0,spr:0,dmg:6.5,hiz:0,rel:0,menzil:76,arc:2.4,ses:70,ack:'Çok geniş bir yay çizen uzun saplı tırpan. Kalabalıkları biçer.'},
+ {ad:'Bombaatar',model:'glauncher',fiyat:1100,mag:6,cd:.8,pel:1,spr:.02,dmg:0,hiz:430,rel:2.4,patla:75,patdmg:5,renk:'#d9b24c',boy:5,ses:75,ack:'Çarptığı yerde küçük alan hasarlı patlama yapan bombalar atar.'},
+ {ad:'Minigun',model:'minigun',fiyat:2200,mag:200,cd:.03,pel:1,spr:.22,dmg:1.3,hiz:900,rel:4,ses:115,ack:'Çok yüksek ateş hızına sahip döner namlulu ağır silah. Cephaneyi hızla tüketir.'},
+ {ad:'JAVELIN',model:'javelin',fiyat:2600,mag:1,cd:.9,pel:1,spr:0,dmg:0,hiz:220,rel:3.2,patla:105,patdmg:14,renk:'#ff6a3a',boy:5,ses:70,ack:'İki modlu omuzdan atılan füze. Lock On açıkken güdümlü füze hedefi takip eder; kapalıyken fareyle seçtiğin noktaya yukarıdan düşer.'}
 ];
 
 const WEAPON_SPECIALS=[
@@ -224,7 +234,14 @@ const WEAPON_SPECIALS=[
   {name:'Geniş Patlama',desc:'Patlama alanını büyütür.',effect:l=>'Patlama yarıçapı: +'+(9*l)+' px'},
   {name:'Kanca Uç',desc:'Levyenin erişim mesafesini artırır.',effect:l=>'Menzil: +'+(4*l)+' px'},
   {name:'Keskin Ağız',desc:'Bıçağın kritik vuruş ihtimalini artırır.',effect:l=>'Kritik şansı: +%'+(3*l)},
-  {name:'Dengeli Gövde',desc:'Metal beyzbol sopasının kritik vuruş ihtimalini artırır.',effect:l=>'Kritik şansı: +%'+(2.5*l)}
+  {name:'Dengeli Gövde',desc:'Metal beyzbol sopasının kritik vuruş ihtimalini artırır.',effect:l=>'Kritik şansı: +%'+(2.5*l)},
+  {name:'Sıkı Boğaz',desc:'Saçmaların dağılmasını azaltır.',effect:l=>'Saçılma: -%'+Math.round((1-Math.pow(.93,l))*100)},
+  {name:'Çelik Uç',desc:'Okların delip geçtiği hedeflerde hasar kaybını azaltır.',effect:l=>'Hasar koruması: %'+Math.round((.6+.08*l)*100)},
+  {name:'Keskin Bileme',desc:'Katananın kritik vuruş ihtimalini artırır.',effect:l=>'Kritik şansı: +%'+(3.5*l)},
+  {name:'Uzun Sap',desc:'Tırpanın erişim mesafesini artırır.',effect:l=>'Menzil: +'+(5*l)+' px'},
+  {name:'Geniş Şarapnel',desc:'Bombaların patlama alanını büyütür.',effect:l=>'Patlama yarıçapı: +'+(6*l)+' px'},
+  {name:'Soğutmalı Namlu',desc:'Minigunun geri tepmesini azaltır.',effect:l=>'Geri tepme: -%'+Math.round((1-Math.pow(.88,l))*100)},
+  {name:'Geniş Başlık',desc:'Füzenin patlama alanını büyütür.',effect:l=>'Patlama yarıçapı: +'+(8*l)+' px'}
 ];
 
 const ACCESSORIES={
@@ -269,7 +286,6 @@ function reset(){
   p={x:0,y:0,r:12,hp:100,maxHp:100,baseMaxHp:100,stam:100,money:Z.bas,scrap:0,g:0,reload:0,cd:0,ang:0,gadgetCd:{grenade:0,molotov:0,c4:0},lockTarget:null,accessories:[],accessoryLevels:{},equipped:{},accCap:20,rec:0,kv:0,bleed:0,hunger:100,sleep:100,energy:0,energyTimer:0,energyUseTimes:[],criticalRegen:0,fedTimer:0};
   damageLog=[];
   // Genel silah geliştirmeleri tek havuzda tutulur ve tüm ateşli silahlara uygulanır.
-  p.sharedWeaponUpgrades={upDmg:0,upRate:0,upMag:0,upReload:0};
   p.guns=WEAPONS.map((w,i)=>({own:i==0,ammo:i==0?w.mag:0,res:i==0?w.mag*3:0,upSpec:0}));
   zs=[];bs=[];items=[];parts=[];floats=[];rings=[];devices=[];zones=[];walls=[];turrets=[];ammoMachines=[];healers=[];beds=[];flash=0;buildMode=null;
   document.getElementById("buildhint").style.display="none";
@@ -338,7 +354,7 @@ function spawnZ(){
   const hp0=(big?6:zirh?5:ozel?3:2)*Z.can*hpScale;
   zs.push({x,y,r:big?22:zirh?16:ozel?15:13,hp:hp0,max:hp0,attackCd:0,sp:(big?42:zirh?46:ozel?70:fast?95:55+Math.random()*20)*Z.hiz*speedScale,dmg:(big?18:zirh?14:9)*Z.hasar*damageScale,val:Math.max(1,Math.round((big?40:zirh?30:ozel?35:fast?15:10)*Z.para*Math.min(1+.03*tier,5))),big,fast,tur:ozel?'special':zirh?'armor':big?'big':fast?'fast':'normal',armor:zirh?.5:1,hit:0});
 }
-const MELEE_ANIM={axe:{dur:.26,delay:.08},hammer:{dur:.5,delay:.28},chainsaw:{dur:.1,delay:0},crowbar:{dur:.24,delay:0},knife:{dur:.16,delay:0},bat:{dur:.26,delay:0}};
+const MELEE_ANIM={axe:{dur:.26,delay:.08},hammer:{dur:.5,delay:.28},chainsaw:{dur:.1,delay:0},crowbar:{dur:.24,delay:0},knife:{dur:.16,delay:0},bat:{dur:.26,delay:0},katana:{dur:.18,delay:0},scythe:{dur:.32,delay:.1}};
 function drawMeleeWeapon(w,jacket){
   const mo=w.model||'axe',D=p.swingMax||.18,sg=p.swing>0,u=sg?1-p.swing/D:0,now=Date.now(),alt=p.swingAlt?1:-1;
   const E=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x)};
@@ -349,6 +365,8 @@ function drawMeleeWeapon(w,jacket){
   else if(mo==='crowbar'){a0=-w.arc/2;if(sg)rot=a0+E(u)*w.arc;else rot=-.7}
   else if(mo==='knife'){if(sg){const k=u<.4?E(u/.4):1-E((u-.4)/.6);tx=18*k;rot=alt*.18-alt*.12*k}else rot=-.45}
   else if(mo==='bat'){wu=.22;a0=-w.arc/2-.5;if(sg)rot=u<wu?-.6+(a0+.6)*E(u/wu):a0+E((u-wu)/(1-wu))*(w.arc+.8)}
+  else if(mo==='katana'){wu=.15;a0=-w.arc/2-.2;if(sg)rot=u<wu?-.6+(a0+.6)*E(u/wu):a0+E((u-wu)/(1-wu))*(w.arc+.2)}
+  else if(mo==='scythe'){wu=.3;a0=-w.arc/2-.3;if(sg)rot=u<wu?-.6+(a0+.6)*E(u/wu):a0+E((u-wu)/(1-wu))*(w.arc+.3)}
   else{a0=-w.arc/2;if(sg)rot=a0+u*w.arc}
   if(sg&&a0!=null&&u>=wu&&mo!=='hammer'&&rot>a0){cx.strokeStyle='rgba(255,255,255,'+(1-u)*.45+')';cx.lineWidth=3;cx.beginPath();cx.arc(0,0,w.menzil*.9,a0,rot);cx.stroke()}
   cx.save();cx.translate(tx,ty);cx.rotate(rot);cx.scale(sc,1);cx.lineCap='round';
@@ -370,6 +388,13 @@ function drawMeleeWeapon(w,jacket){
   }else if(mo==='knife'){
     cx.fillStyle='#3a2a1c';cx.fillRect(6,-2,10,4);cx.fillStyle='#8f969b';cx.fillRect(16,-4,2,8);
     cx.fillStyle='#d5dde2';cx.beginPath();cx.moveTo(18,-2.2);cx.lineTo(34,-1.2);cx.lineTo(39,0);cx.lineTo(18,2.2);cx.closePath();cx.fill();
+  }else if(mo==='katana'){
+    cx.fillStyle='#2b2b36';cx.fillRect(4,-2,10,4);cx.fillStyle='#c9a24b';cx.fillRect(14,-4.5,2,9);
+    cx.strokeStyle='#dfe6ea';cx.lineWidth=3;cx.beginPath();cx.moveTo(16,0);cx.quadraticCurveTo(38,-1.5,56,2);cx.stroke();
+    cx.strokeStyle='#fff';cx.lineWidth=1;cx.beginPath();cx.moveTo(18,-1);cx.quadraticCurveTo(38,-2.5,54,1);cx.stroke();
+  }else if(mo==='scythe'){
+    cx.fillStyle='#6b4a2b';cx.fillRect(4,-2,46,4);
+    cx.fillStyle='#c9d1d6';cx.beginPath();cx.moveTo(46,-1);cx.quadraticCurveTo(66,-7,69,13);cx.lineTo(62,10);cx.quadraticCurveTo(60,-2,46,3);cx.closePath();cx.fill();
   }else{
     cx.fillStyle='#d97a1a';cx.fillRect(6,-2,34,4);cx.fillStyle='#b9c2c8';cx.beginPath();cx.moveTo(33,-2);cx.lineTo(40,-13);cx.lineTo(46,-9);cx.lineTo(42,2);cx.closePath();cx.fill();
   }
@@ -452,7 +477,9 @@ function registerKill(z){
   if(kills>0&&kills%100===0)bossCall();
 }
 function burst(x,y,n,col){
-  for(let i=0;i<n;i++){const a=Math.random()*6.28,s=40+Math.random()*140;
+  // Efektler birikerek belleği şişirmesin.
+  const room=Math.max(0,1200-parts.length),count=Math.min(n,room);
+  for(let i=0;i<count;i++){const a=Math.random()*6.28,s=40+Math.random()*140;
     parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.4+Math.random()*.4,col});}
 }
 function shoot(){
@@ -463,12 +490,41 @@ function shoot(){
   if(!cheats.inf)s.ammo--;p.cd=w.cd;shake=w.pel>1?6:3;
   const wm=worldMouse();
   const baseAng=p.lockTarget?Math.atan2(p.lockTarget.y-p.y,p.lockTarget.x-p.x):Math.atan2(wm.y-p.y,wm.x-p.x);
+  if(w.model==='javelin'){fireJavelin(w,wm);p.rec=Math.min(1,p.rec+.3);soundFx('shot',w);return}
   for(let i=0;i<w.pel;i++){
     const a=baseAng+(Math.random()-.5)*w.spr*(1+p.rec*2.5),kr=Math.random()<critChance(w);
     bs.push({x:p.x,y:p.y,vx:Math.cos(a)*w.hiz,vy:Math.sin(a)*w.hiz,life:w.omur||.9,dmg:w.dmg*playerDamageMultiplier()*(kr?(w.critMult||2):1),kr,del:!!w.delici,penPower:w.penPower||1,vurdu:[],renk:kr?'#fff2a0':w.renk,boy:w.boy||2.5,patla:cheats.explosive?(w.patla||72):w.patla,patdmg:(cheats.explosive?Math.max(w.patdmg||0,w.dmg*2,3):w.patdmg)*playerDamageMultiplier()});
   }
-  const rc=(RECOIL[w.ad]||.3)*gearStat('recoil')*(w.recoilScale||1);p.rec=Math.min(1,p.rec+rc*.25);
+  const rc=(RECOIL[w.model]||RECOIL[w.ad]||.3)*gearStat('recoil')*(w.recoilScale||1);p.rec=Math.min(1,p.rec+rc*.25);
   soundFx('shot',w);
+}
+function fireJavelin(w,wm){
+  const pd=w.patdmg*playerDamageMultiplier();
+  if(lockOn){ // güdümlü mod
+    const tg=p.lockTarget||null,a=tg?Math.atan2(tg.y-p.y,tg.x-p.x):Math.atan2(wm.y-p.y,wm.x-p.x);
+    bs.push({x:p.x,y:p.y,vx:Math.cos(a)*220,vy:Math.sin(a)*220,life:4,dmg:0,kr:false,del:false,penPower:1,vurdu:[],renk:'#ff6a3a',boy:5,patla:w.patla,patdmg:pd,homing:tg,spd:220});
+    floats.push({x:p.x,y:p.y-30,t:tg?'KİLİTLENDİ':'HEDEF YOK',life:.8});
+  }else{ // nokta atışı: yukarı çıkıp seçilen noktaya düşer
+    let tx=wm.x,ty=wm.y;const dx=tx-p.x,dy=ty-p.y,d=Math.hypot(dx,dy)||1;
+    if(d>760){tx=p.x+dx/d*760;ty=p.y+dy/d*760}
+    const dist=Math.hypot(tx-p.x,ty-p.y),T=Math.max(.7,dist/420);
+    bs.push({x:p.x,y:p.y,vx:0,vy:0,life:T+1,dmg:0,vurdu:[],renk:'#ffb347',boy:5,patla:w.patla,patdmg:pd,arc:true,sx:p.x,sy:p.y,tx,ty,T,t:0,H:110+dist*.18,h:0});
+  }
+}
+function homeStep(b,dt){
+  let t=b.homing;
+  if(!t||t.hp<=0){t=null;let best=420*420;for(const z of zs){if(z.hp<=0)continue;const d2=(z.x-b.x)*(z.x-b.x)+(z.y-b.y)*(z.y-b.y);if(d2<best){best=d2;t=z}}b.homing=t}
+  b.spd=Math.min(560,b.spd+260*dt);
+  let ang=Math.atan2(b.vy,b.vx);
+  if(t){let da=Math.atan2(t.y-b.y,t.x-b.x)-ang;da=Math.atan2(Math.sin(da),Math.cos(da));ang+=Math.max(-4.5*dt,Math.min(4.5*dt,da))}
+  b.vx=Math.cos(ang)*b.spd;b.vy=Math.sin(ang)*b.spd;
+  if(Math.random()<.6)burst(b.x,b.y,1,'#cfcfcf');
+}
+function arcStep(b,dt){
+  b.t+=dt;const u=Math.min(1,b.t/b.T);
+  b.x=b.sx+(b.tx-b.sx)*u;b.y=b.sy+(b.ty-b.sy)*u;b.h=Math.sin(u*Math.PI)*b.H;b.life=1;
+  if(Math.random()<.5)burst(b.x,b.y-b.h,1,'#cfcfcf');
+  if(u>=1){b.life=0;b.boom=1;patlat(b)}
 }
 function startReload(){
   const w=cw(),s=cs();
@@ -691,8 +747,8 @@ function update(dt){
     let best=620,bestZ=null;
     for(const z of zs){
       if(z.hp<=0)continue;
-      const d=Math.hypot(z.x-p.x,z.y-p.y);
-      if(d<best){best=d;bestZ=z;}
+      const dx=z.x-p.x,dy=z.y-p.y,d2=dx*dx+dy*dy;
+      if(d2<best*best){best=Math.sqrt(d2);bestZ=z;}
     }
     p.lockTarget=bestZ;
   }else{
@@ -783,16 +839,17 @@ function update(dt){
     spawnTimer=spawnInterval();
   }
   // mermiler
-  for(const b of bs){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;
+  for(const b of bs){if(b.arc){arcStep(b,dt);continue}if(b.homing!==undefined)homeStep(b,dt);b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;
     for(const z of zs){
-      if(z.hp>0&&!(z.parryFinishTimer>0)&&!b.vurdu.includes(z)&&Math.hypot(z.x-b.x,z.y-b.y)<z.r){
-        if(b.patla){b.life=0;patlat(b);break}
+      if(z.hp>0&&!(z.parryFinishTimer>0)&&!b.vurdu.includes(z)&&((z.x-b.x)*(z.x-b.x)+(z.y-b.y)*(z.y-b.y))<z.r*z.r){
+        if(b.patla){b.life=0;b.boom=1;patlat(b);break}
         const dealt=b.dmg*(z.armor||1)*Math.pow(b.penPower||1,b.vurdu.length);z.hp-=dealt;z.hit=.1;kayitHasar(dealt,!!b.kr);if(b.kr)kritikFx(z);b.vurdu.push(z);if(!b.del)b.life=0;burst(b.x,b.y,5,'#7a1f1f');
         z.x+=b.vx*.02;z.y+=b.vy*.02;
         if(z.hp<=0){registerKill(z);burst(z.x,z.y,14,'#5a1010');dropLoot(z);}
         if(!b.del)break;
       }}}
-  bs=bs.filter(b=>b.life>0&&Math.abs(b.x-p.x)<W*1.5&&Math.abs(b.y-p.y)<H*1.5);
+  for(const b of bs)if(b.life<=0&&b.homing!==undefined&&!b.boom){b.boom=1;patlat(b)}
+  bs=bs.filter(b=>b.life>0&&Math.abs(b.x-p.x)<W*1.5&&Math.abs(b.y-p.y)<H*1.5);if(bs.length>700)bs.splice(0,bs.length-700);
   for(const z of zs)if(z.hp<=0)paraVer(z);
   zs=zs.filter(z=>z.hp>0);
   walls=walls.filter(w=>w.hp>0);
@@ -919,18 +976,18 @@ function update(dt){
         if(level===0)floats.push({x:p.x,y:p.y-20,t:'AKSESUAR: '+ACCESSORIES[id].name,life:1.8});
       }
       it.life=0;beep(520,.1,'sine',.05);}}
-  items=items.filter(i=>i.life>0);
+  items=items.filter(i=>i.life>0);if(items.length>350)items.splice(0,items.length-350);
   for(const q of parts){q.x+=q.vx*dt;q.y+=q.vy*dt;q.life-=dt}
-  parts=parts.filter(q=>q.life>0);
+  parts=parts.filter(q=>q.life>0);if(parts.length>1200)parts.splice(0,parts.length-1200);
   for(const f of floats){f.y-=30*dt;f.life-=dt}
-  floats=floats.filter(f=>f.life>0);
+  floats=floats.filter(f=>f.life>0);if(floats.length>120)floats.splice(0,floats.length-120);
   for(const r of rings)r.life-=dt;
-  rings=rings.filter(r=>r.life>0);
+  rings=rings.filter(r=>r.life>0);if(rings.length>120)rings.splice(0,rings.length-120);
   shake=Math.max(0,shake-dt*20);
   if(p.hp<=0)bitti();
 }
 
-const GUN_LEN={'Tabanca':12,'Revolver':14,'Hafif Makineli':18,'Alev Atar':24,'Tüfek':26,'Pompalı':28,'Ağır Makineli':28,'Roketatar':30,'Keskin Nişancı':32};
+const GUN_LEN={javelin:30,pistol:12,revolver:14,smg:18,flame:24,rifle:26,shotgun:28,lmg:28,rocket:30,sniper:32,dshotgun:24,crossbow:22,glauncher:26,minigun:30,'Tabanca':12,'Revolver':14,'Hafif Makineli':18,'Alev Atar':24,'Tüfek':26,'Pompalı':28,'Ağır Makineli':28,'Roketatar':30,'Keskin Nişancı':32};
 function drawZombie(z,lod){
   if(z.isBoss){drawBoss(z);return}
   const r=z.r,a=z.a||0,sd=z.seed||(z.seed=Math.random()*6.28),hit=z.hit>0,tur=z.tur;
@@ -990,7 +1047,7 @@ function drawPlayer(){
   if(melee){
     drawMeleeWeapon(w,jacket);
   }else{
-    const L=GUN_LEN[w.ad]||14,bk=p.rec*3;
+    const L=GUN_LEN[w.model]||GUN_LEN[w.ad]||14,bk=p.rec*3;
     cx.strokeStyle=jacket;cx.beginPath();cx.moveTo(1,9);cx.lineTo(9-bk,2);cx.moveTo(1,-9);cx.lineTo(8+L*.6-bk,-1);cx.stroke();
     cx.fillStyle='#1d1d1d';cx.fillRect(6-bk,-2,L,4);cx.fillStyle='#4a4a4a';cx.fillRect(6-bk+L-5,-1,5,2);
     cx.fillStyle='#d5a77b';cx.beginPath();cx.arc(9-bk,2,2.6,0,6.28);cx.arc(8+L*.6-bk,-1,2.6,0,6.28);cx.fill();
@@ -1060,7 +1117,12 @@ function draw(){
   for(let x=startX;x<camera.x+W+50;x+=50){cx.beginPath();cx.moveTo(x,camera.y);cx.lineTo(x,camera.y+H);cx.stroke()}
   for(let y=startY;y<camera.y+H+50;y+=50){cx.beginPath();cx.moveTo(camera.x,y);cx.lineTo(camera.x+W,y);cx.stroke()}
 
+  // Yalnızca ekrana yakın chunk'ları çiz; uzaktaki dekorlar işlem tüketmesin.
+  const viewL=camera.x-CHUNK_SIZE,viewR=camera.x+W+CHUNK_SIZE;
+  const viewT=camera.y-CHUNK_SIZE,viewB=camera.y+H+CHUNK_SIZE;
   for(const ch of chunks.values()){
+    const cL=ch.cx*CHUNK_SIZE,cT=ch.cy*CHUNK_SIZE;
+    if(cL>viewR||cL+CHUNK_SIZE<viewL||cT>viewB||cT+CHUNK_SIZE<viewT)continue;
     for(const t of ch.trees||[])drawTree(t);
     for(const d of ch.debris){
       cx.fillStyle=d.col;cx.beginPath();cx.arc(d.x,d.y,d.r,0,6.28);cx.fill();
@@ -1132,7 +1194,17 @@ function draw(){
     cx.moveTo(z.x,z.y-18);cx.lineTo(z.x,z.y-9);
     cx.moveTo(z.x,z.y+9);cx.lineTo(z.x,z.y+18);cx.stroke();cx.restore();
   }
-  for(const b of bs){cx.fillStyle=b.renk||'#ffe9a0';cx.beginPath();cx.arc(b.x,b.y,b.boy||2.5,0,6.28);cx.fill()}
+  for(const b of bs){
+    if(b.arc){
+      cx.fillStyle='rgba(0,0,0,.25)';cx.beginPath();cx.ellipse(b.x,b.y,5,2.5,0,0,6.28);cx.fill();
+      cx.strokeStyle='rgba(255,90,50,'+(.35+.25*Math.sin(Date.now()/90))+')';cx.lineWidth=2;cx.beginPath();cx.arc(b.tx,b.ty,b.patla,0,6.28);cx.stroke();
+      cx.beginPath();cx.moveTo(b.tx-8,b.ty);cx.lineTo(b.tx+8,b.ty);cx.moveTo(b.tx,b.ty-8);cx.lineTo(b.tx,b.ty+8);cx.stroke();
+      cx.fillStyle='#d9d9d9';cx.beginPath();cx.arc(b.x,b.y-b.h,4,0,6.28);cx.fill();cx.fillStyle=b.renk;cx.beginPath();cx.arc(b.x,b.y-b.h+3,2.5,0,6.28);cx.fill();
+      continue;
+    }
+    if(b.homing!==undefined){const a=Math.atan2(b.vy,b.vx);cx.save();cx.translate(b.x,b.y);cx.rotate(a);cx.fillStyle='#d9d9d9';cx.fillRect(-7,-2,14,4);cx.fillStyle='#ff6a3a';cx.fillRect(7,-2,3,4);cx.fillStyle='#ffb347';cx.fillRect(-10,-1.5,3,3);cx.restore();continue}
+    cx.fillStyle=b.renk||'#ffe9a0';cx.beginPath();cx.arc(b.x,b.y,b.boy||2.5,0,6.28);cx.fill();
+  }
   for(const r of rings){const k=r.life/.3;cx.strokeStyle='rgba(255,170,60,'+k+')';cx.lineWidth=4;cx.beginPath();cx.arc(r.x,r.y,r.r*(1-k)+10,0,6.28);cx.stroke()}
   cx.textAlign='center';cx.font='bold 16px Georgia';
   for(const f of floats){cx.globalAlpha=Math.max(0,f.life);cx.fillStyle='#e6c75a';cx.fillText(f.t,f.x,f.y)}
@@ -1246,6 +1318,7 @@ function hud(){
   wr.forEach((u,i)=>{cx.globalAlpha=.65+.35*Math.sin(Date.now()/200);cx.fillStyle=u[1];cx.fillText(u[0],W/2,44+i*24)});cx.globalAlpha=1;
   // alt orta: silah ve cephane
   const m=W/2;cx.fillStyle='rgba(8,12,10,.62)';cx.fillRect(m-130,H-62,260,52);cx.textAlign='center';cx.fillStyle='#b8d86b';cx.font='bold 14px Georgia';cx.fillText(w.ad,m,H-46);
+  if(w.model==='javelin'){cx.fillStyle='#ffb347';cx.font='11px Georgia';cx.fillText(lockOn?'GÜDÜMLÜ • LOCK ON':'NOKTA ATIŞI • LOCK OFF',m,H-66)}
   if(w.melee){cx.fillStyle='#d8e2d0';cx.font='13px Georgia';cx.fillText('Yakın dövüş  •  cephane yok',m,H-24)}
   else{
     cx.fillStyle='#fff';cx.font='bold 20px Georgia';cx.fillText(cheats.inf?'∞ / ∞':s.ammo+' / '+s.res,m,H-26);
@@ -1308,6 +1381,106 @@ function hud(){
     cx.restore();
   }
 }
+
+// ===== Otomatik kayıt / devam sistemi =====
+const SAVE_KEY='last_chance_save_v3';
+let saveElapsed=0,saveBusy=false,nextSaveAt=Date.now()+60000,saveHideAt=0;
+function showSaveStatus(txt,ms,keep){
+  if(!saveStatusEl)return;
+  if(!txt){saveStatusEl.style.display='none';saveHideAt=0;return}
+  saveStatusEl.textContent=txt;saveStatusEl.style.display='block';
+  if(!keep)saveHideAt=ms?Date.now()+ms:0;
+}
+const saveStatusEl=document.getElementById('saveStatus');
+const continueBtn=document.getElementById('continueBtn');
+function savePayload(){
+  if(!p)return null;
+  const player={...p,lockTarget:null};
+  return {
+    version:3,savedAt:Date.now(),difficulty:Object.keys(ZORLUK).find(k=>ZORLUK[k]===Z)||'normal',
+    p:player,zs,bs,items,devices,zones,walls,turrets,ammoMachines,healers,beds,
+    chunks:Array.from(chunks.entries()),boss,bossQueue,bossKills,bossT,dayTime,weather,weatherTimer,
+    score,kills,spawnTimer,cheats:{...cheats},lockOn
+  };
+}
+function hasSave(){
+  try{
+    if(window.lastChanceDesktop?.hasSaveSync)return !!window.lastChanceDesktop.hasSaveSync();
+    return !!localStorage.getItem(SAVE_KEY);
+  }catch(e){return false}
+}
+async function saveGame(reason='auto'){
+  if(!p||saveBusy)return false;
+  saveBusy=true;
+  try{
+    const data=JSON.stringify(savePayload());
+    if(window.lastChanceDesktop?.saveSync){if(!window.lastChanceDesktop.saveSync(data))throw new Error('Masaüstü kayıt dosyası yazılamadı')}
+    else localStorage.setItem(SAVE_KEY,data);
+    showSaveStatus('Kayıt alındı',2500);
+    if(continueBtn)continueBtn.style.display='inline-block';
+    return true;
+  }catch(e){
+    showSaveStatus('Kayıt başarısız: depolama alanı',4000);
+    console.warn('Last Chance kayıt hatası:',e);
+    return false;
+  }finally{saveBusy=false}
+}
+function loadGame(){
+  try{
+    const raw=window.lastChanceDesktop?.loadSync?window.lastChanceDesktop.loadSync():localStorage.getItem(SAVE_KEY);
+    if(!raw)return false;
+    const d=JSON.parse(raw);
+    if(!d||d.version!==3||!d.p||!Array.isArray(d.zs))throw new Error('Kayıt dosyası uyumsuz');
+    Z=ZORLUK[d.difficulty]||ZORLUK.normal;
+    reset();
+    p={...d.p,lockTarget:null};
+    if(p.sharedWeaponUpgrades){ // eski kayıt: ortak geliştirmeler iade edilir, silah başına yeniden alınır
+      let refund=0;for(const k of['upDmg','upRate','upMag','upReload'])for(let l=0,n=p.sharedWeaponUpgrades[k]||0;l<n;l++)refund+=Math.round(5+80*.015+l*3.5);
+      if(refund>0){p.scrap=(p.scrap||0)+refund;setTimeout(()=>{if(running)floats.push({x:p.x,y:p.y-40,t:'Eski ortak geliştirmeler iade edildi: +'+refund+' HURDA',life:3})},500)}
+      delete p.sharedWeaponUpgrades;
+    }
+    if(!Array.isArray(p.guns))p.guns=[];
+    for(let i=p.guns.length;i<WEAPONS.length;i++)p.guns[i]={own:false,ammo:0,res:0,upSpec:0}; // eski kayıtlara yeni silahlar eklenir
+    zs=Array.isArray(d.zs)?d.zs:[];
+    bs=Array.isArray(d.bs)?d.bs:[];
+    items=Array.isArray(d.items)?d.items:[];
+    devices=Array.isArray(d.devices)?d.devices:[];
+    zones=Array.isArray(d.zones)?d.zones:[];
+    walls=Array.isArray(d.walls)?d.walls:[];
+    turrets=Array.isArray(d.turrets)?d.turrets:[];
+    ammoMachines=Array.isArray(d.ammoMachines)?d.ammoMachines:[];
+    healers=Array.isArray(d.healers)?d.healers:[];
+    beds=Array.isArray(d.beds)?d.beds:[];
+    if(Array.isArray(d.chunks))chunks=new Map(d.chunks);
+    boss=zs.find(z=>z.isBoss)||d.boss||null;
+    bossQueue=d.bossQueue||0;bossKills=d.bossKills||0;bossT=d.bossT||0;
+    dayTime=Number.isFinite(d.dayTime)?d.dayTime:.28;
+    weather=d.weather||'clear';weatherTimer=d.weatherTimer||30;
+    score=d.score||0;kills=d.kills||0;spawnTimer=d.spawnTimer||1;
+    Object.assign(cheats,d.cheats||{});
+    lockOn=!!d.lockOn;
+    damageLog=[];parts=[];floats=[];rings=[];dust=[];skids=[];rainDrops=[];
+    ensureChunks();camera.x=p.x-W/2;camera.y=p.y-H/2;
+    shopOpen=false;konOpen=false;equipOpen=false;settingsOpen=false;
+    shopEl.style.display='none';document.getElementById('kon').style.display='none';
+    document.getElementById('equip').style.display='none';document.getElementById('settings').style.display='none';
+    dk.style.display='block';kb.style.display='block';ov.style.display='none';
+    running=true;lastT=performance.now();saveElapsed=0;
+    showSaveStatus('Kayıt yüklendi',2500);nextSaveAt=Date.now()+60000;
+    detectMobile();draw();requestAnimationFrame(loop);
+    return true;
+  }catch(e){console.warn('Kayıt yüklenemedi:',e);return false}
+}
+setInterval(()=>{
+  if(!running){showSaveStatus('',0);return}
+  const left=nextSaveAt-Date.now();
+  if(left<=0){nextSaveAt=Date.now()+60000;saveGame('auto')}
+  else if(left<=5000)showSaveStatus('Otomatik kayıt: '+Math.ceil(left/1000),0,true);
+  else if(saveHideAt&&Date.now()>saveHideAt)showSaveStatus('',0);
+},250);
+addEventListener('pagehide',()=>{if(running)saveGame('auto')});
+addEventListener('beforeunload',()=>{if(running)saveGame('auto')});
+
 function loop(t){
   if(!running)return;
   if(shopOpen||konOpen||equipOpen||settingsOpen){lastT=t;requestAnimationFrame(loop);return}
@@ -1319,11 +1492,14 @@ function loop(t){
   requestAnimationFrame(loop);
 }
 function basla(){
-  reset();shopOpen=false;shopEl.style.display='none';dk.style.display='block';kb.style.display='block';ov.style.display='none';running=true;lastT=performance.now();
+  reset();shopOpen=false;shopEl.style.display='none';dk.style.display='block';kb.style.display='block';ov.style.display='none';running=true;lastT=performance.now();saveElapsed=0;
+  ov.querySelector('h1').textContent='LAST CHANCE';btn.textContent='Başla';
+  nextSaveAt=Date.now()+60000;showSaveStatus('',0);
   detectMobile();
   requestAnimationFrame(loop);
 }
 function bitti(){
+  saveGame('auto');
   running=false;closeShop();closeKon();closeSettings();dk.style.display='none';kb.style.display='none';draw();
   ov.style.display='flex';
   ov.querySelector('h1').textContent='Hayatta kalamadın';
@@ -1333,7 +1509,7 @@ function bitti(){
 const dk=document.getElementById('dk'),shopEl=document.getElementById('shop');
 function cw(){
   const base=WEAPONS[p.g],g=p.guns[p.g]||{};
-  const shared=p.sharedWeaponUpgrades||{};
+  const shared=g; // yükseltmeler her silahın kendi kaydında tutulur
   const dmgLevel=shared.upDmg||0,rateLevel=shared.upRate||0,magLevel=shared.upMag||0,reloadLevel=shared.upReload||0,specLevel=g.upSpec||0;
   // Hasar ve ateş hızı sınırları bütün silahlarda geçerlidir; RPG'nin aşırı hızlı ateş etmesini de engeller.
   const dmgCap=1.8;
@@ -1350,6 +1526,7 @@ function cw(){
     mag:base.melee?0:Math.min(200,Math.round(base.mag*magMult)),
     specLv
   };
+  if(base.patdmg)w.patdmg=base.patdmg*dmgMult; // patlayıcı silahlarda hasar geliştirmesi de işe yarar
   switch(p.g){
     case 1: w.menzil+=5*specPower; break;                         // Fiskars X27
     case 2: w.dmg*=1+.08*specPower; break;                         // Estwing E3-FF4
@@ -1365,6 +1542,13 @@ function cw(){
     case 12: w.menzil+=4*specPower; break;                         // Stanley FatMax Levye
     case 13: w.critBonus=.03*specPower; break;                     // KA-BAR USMC
     case 14: w.critBonus=.025*specPower; break;                    // Metal Beyzbol Sopası
+    case 15: w.spr*=Math.pow(.93,specPower); break;               // Çifte Namlu
+    case 16: w.penPower=.6+.08*specPower; break;                  // Arbalet
+    case 17: w.critBonus=.035*specPower; break;                   // Katana
+    case 18: w.menzil+=5*specPower; break;                        // Tırpan
+    case 19: w.patla+=6*specPower; break;                         // Bombaatar
+    case 20: w.recoilScale=Math.pow(.88,specPower); break;        // Minigun
+    case 21: w.patla+=8*specPower; break;                         // JAVELIN
   }
   if(p.g===0)w.critBonus=.025*specPower;                           // Glock 18
   return w;
@@ -1567,7 +1751,7 @@ function renderSettings(){
   settingsEl.querySelector('[data-a=kapat]').onclick=closeSettings;
 }
 
-const RECOIL={'Tabanca':.35,'Revolver':.6,'Hafif Makineli':.22,'Pompalı':.9,'Tüfek':.3,'Keskin Nişancı':1,'Alev Atar':.05,'Ağır Makineli':.28,'Roketatar':1.2};
+const RECOIL={javelin:.9,pistol:.35,revolver:.6,smg:.22,shotgun:.9,rifle:.3,sniper:1,flame:.05,lmg:.28,rocket:1.2,dshotgun:1.1,crossbow:.4,glauncher:.8,minigun:.2,'Tabanca':.35,'Revolver':.6,'Hafif Makineli':.22,'Pompalı':.9,'Tüfek':.3,'Keskin Nişancı':1,'Alev Atar':.05,'Ağır Makineli':.28,'Roketatar':1.2};
 const BLEED_MAX=10,BLEED_ADD={normal:1.2,fast:1.5,big:2.5,armor:2,special:3};
 function critChance(w){return Math.min(.65,.08+(w.dmg>=4?.1:0)+(w.critBonus||0))}
 function kritikFx(z){floats.push({x:z.x,y:z.y-14,t:'KRİTİK!',life:.8});rings.push({x:z.x,y:z.y,r:28,life:.3});burst(z.x,z.y,8,'#ffe066')}
@@ -1599,8 +1783,10 @@ function upgrade(k,o){
   p.money-=fy;o.invested=(o.invested||STRUCT[k].base)+fy;o.level=(o.level||1)+1;soundFx('buy');burst(o.x,o.y,14,STRUCT[k].renk);floats.push({x:o.x,y:o.y-20,t:'Lv.'+o.level,life:1});return true;
 }
 function treePush(){
-  // Ağaç taçları da fiziksel engel: oyuncu gövde/yaprak alanının içinden geçemez.
+  // Çarpışma yalnızca oyuncunun bulunduğu ve komşu chunk'larda aranır.
+  const pcx=Math.floor(p.x/CHUNK_SIZE),pcy=Math.floor(p.y/CHUNK_SIZE);
   for(const ch of chunks.values()){
+    if(Math.abs(ch.cx-pcx)>1||Math.abs(ch.cy-pcy)>1)continue;
     for(const t of ch.trees||[]){
       const tr=t.r*.72, tx=t.x, ty=t.y-t.r*.68*t.h;
       const minD=tr+p.r, ox=p.x-tx, oy=p.y-ty, d=Math.hypot(ox,oy);
@@ -1742,20 +1928,20 @@ function renderShop(){
     const addUpgrade=(stat,label,desc,max=15,disabled=false)=>{
       const key=stat==='dmg'?'upDmg':stat==='rate'?'upRate':stat==='mag'?'upMag':'upReload';
       const sharedStat=stat!=='spec';
-      const lv=sharedStat?((p.sharedWeaponUpgrades||{})[key]||0):(us.upSpec||0),price=weaponUpgradePrice(stat,lv);
+      const lv=sharedStat?(us[key]||0):(us.upSpec||0),price=weaponUpgradePrice(stat,lv);
       const full=lv>=max,off=disabled||!!uw.melee||full||p.scrap<price;
       const detail=full?'Maksimum seviye':desc+' • Seviye '+lv+'/'+max;
       h+=mkart(label+' '+(lv>=max?'(MAKS)':'Lv.'+lv), 'Silah yükseltme',detail,full?'MAKS':price+' Hurda','#b8d86b',
         '<button data-a="wup" data-stat="'+stat+'"'+(off?' disabled':'')+'>Yükselt</button>');
     };
     h+='<div style="grid-column:1/-1;color:#b8d86b;font-size:19px;margin:8px 0 0">Elindeki silahı yükselt: '+ug.ad+' • Tüm geliştirmeler hurda metal ile alınır.</div>';
-    const dmgShown=Math.min(1+.1*((p.sharedWeaponUpgrades||{}).upDmg||0),1.8);
-    const rateShown=Math.min(1+.1*((p.sharedWeaponUpgrades||{}).upRate||0),1.35);
-    const reloadShown=1+.1*((p.sharedWeaponUpgrades||{}).upReload||0);
-    addUpgrade('dmg','Hasar','Her seviye +x0.1; tüm ateşli silahlara uygulanır, üst sınır x1.8. Etkin çarpan x'+dmgShown.toFixed(1)+' • '+uw.dmg.toFixed(1)+' hasar.',15,!!uw.melee);
-    addUpgrade('rate','Ateş hızı','Her seviye +x0.1; tüm ateşli silahlara uygulanır, üst sınır x1.35. Etkin çarpan x'+rateShown.toFixed(1)+' • '+(1/uw.cd).toFixed(1)+' atış/sn.',15,!!uw.melee);
-    addUpgrade('mag','Şarjör kapasitesi','Her seviye kapasiteyi x1.1 artırır ve tüm ateşli silahlara uygulanır. Şu an x'+(1+.1*((p.sharedWeaponUpgrades||{}).upMag||0)).toFixed(1)+' • '+(uw.melee?'Yakın dövüş silahında kullanılamaz.':uw.mag+' mermi mevcut.'),15,!!uw.melee);
-    addUpgrade('reload','Hızlı Değişim','Her seviye şarjör yenileme hızını x1.1 artırır ve tüm ateşli silahlara uygulanır. Etkin hız x'+reloadShown.toFixed(1)+' • '+(uw.melee?'Yakın dövüş silahında kullanılamaz.':uw.rel.toFixed(2)+' saniyede yenilenir.'),15,!!uw.melee);
+    const dmgShown=Math.min(1+.1*(us.upDmg||0),1.8);
+    const rateShown=Math.min(1+.1*(us.upRate||0),1.35);
+    const reloadShown=1+.1*(us.upReload||0);
+    addUpgrade('dmg','Hasar','Her seviye +x0.1; yalnızca bu silaha uygulanır, üst sınır x1.8. Etkin çarpan x'+dmgShown.toFixed(1)+' • '+uw.dmg.toFixed(1)+' hasar.',15,!!uw.melee);
+    addUpgrade('rate','Ateş hızı','Her seviye +x0.1; yalnızca bu silaha uygulanır, üst sınır x1.35. Etkin çarpan x'+rateShown.toFixed(1)+' • '+(1/uw.cd).toFixed(1)+' atış/sn.',15,!!uw.melee);
+    addUpgrade('mag','Şarjör kapasitesi','Her seviye kapasiteyi x1.1 artırır ve yalnızca bu silaha uygulanır. Şu an x'+(1+.1*(us.upMag||0)).toFixed(1)+' • '+(uw.melee?'Yakın dövüş silahında kullanılamaz.':uw.mag+' mermi mevcut.'),15,!!uw.melee);
+    addUpgrade('reload','Hızlı Değişim','Her seviye şarjör yenileme hızını x1.1 artırır ve yalnızca bu silaha uygulanır. Etkin hız x'+reloadShown.toFixed(1)+' • '+(uw.melee?'Yakın dövüş silahında kullanılamaz.':uw.rel.toFixed(2)+' saniyede yenilenir.'),15,!!uw.melee);
     const spLv=us.upSpec||0,spMax=15,spPrice=weaponUpgradePrice('spec',spLv),sp=WEAPON_SPECIALS[p.g];
     // Melee'de özel geliştirme seviyesi doğrudan etki eder; ateşlilerde /3 + çarpan kullanılır.
     const spEffectLevel=uw.melee?spLv:(spLv/3);
@@ -1807,7 +1993,7 @@ shopEl.addEventListener('click',e=>{
   else if(a=='sec')sec(i);
   else if(a=='wup'){
     const stat=b.dataset.stat,g=cs(),key=stat==='dmg'?'upDmg':stat==='rate'?'upRate':stat==='mag'?'upMag':stat==='reload'?'upReload':'upSpec';
-    const sharedStat=stat!=='spec',target=sharedStat?(p.sharedWeaponUpgrades||(p.sharedWeaponUpgrades={upDmg:0,upRate:0,upMag:0,upReload:0})):g;
+    const sharedStat=stat!=='spec',target=g;
     const max=15,level=target[key]||0,price=weaponUpgradePrice(stat,level);
     // Paylaşımlı yükseltmeler sadece ateşli silahlarda; özel geliştirme melee dahil çalışır.
     const allow=stat==='spec'||!cw().melee;
@@ -2229,6 +2415,8 @@ document.getElementById('mEnergy').addEventListener('touchstart',e=>{e.preventDe
 document.getElementById('mSlide').addEventListener('touchstart',e=>{e.preventDefault();kay()},{passive:false});
 
 reset();draw();
+if(hasSave())continueBtn.style.display='inline-block';
+continueBtn.addEventListener('click',()=>{if(!loadGame()){continueBtn.style.display='none';alert('Kayıt yüklenemedi veya bozulmuş. Yeni oyun başlatabilirsin.')}});
 document.getElementById('langBtn').addEventListener('click',()=>setLang(LANG==='en'?'tr':'en'));
 new MutationObserver(ms=>{for(const m of ms){
   if(m.type==='childList')m.addedNodes.forEach(i18nNode);
