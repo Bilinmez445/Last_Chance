@@ -335,7 +335,7 @@ let p,zs,bs,items,parts,score,kills,running,lastT,spawnTimer,shake,floats,rings,
 let damageLog=[];
 
 function reset(){
-  p={x:0,y:0,r:12,hp:100,maxHp:100,baseMaxHp:100,stam:100,money:Z.bas,scrap:0,g:0,reload:0,cd:0,ang:0,gadgetCd:{grenade:0,molotov:0,c4:0},lockTarget:null,accessories:[],accessoryLevels:{},equipped:{},accCap:20,rec:0,kv:0,bleed:0,hunger:100,sleep:100,energy:0,energyTimer:0,energyUseTimes:[],criticalRegen:0,fedTimer:0};
+  p={x:0,y:0,r:12,hp:100,maxHp:100,baseMaxHp:100,stam:100,money:Z.bas,scrap:0,g:0,reload:0,cd:0,parryReadyAt:0,ang:0,gadgetCd:{grenade:0,molotov:0,c4:0},lockTarget:null,accessories:[],accessoryLevels:{},equipped:{},accCap:20,rec:0,kv:0,bleed:0,hunger:100,sleep:100,energy:0,energyTimer:0,energyUseTimes:[],criticalRegen:0,fedTimer:0};
   damageLog=[];
   // Genel silah geliştirmeleri tek havuzda tutulur ve tüm ateşli silahlara uygulanır.
   p.guns=WEAPONS.map((w,i)=>({own:i==0,ammo:i==0?w.mag:0,res:i==0?w.mag*3:0,upSpec:0}));
@@ -1494,14 +1494,17 @@ function loadGame(){
     if(!d||d.version!==3||!d.p||!Array.isArray(d.zs))throw new Error('Kayıt dosyası uyumsuz');
     Z=ZORLUK[d.difficulty]||ZORLUK.normal;
     reset();
-    p={...d.p,lockTarget:null};
+    p={...d.p,lockTarget:null,parryReadyAt:0};
     if(p.sharedWeaponUpgrades){ // eski kayıt: ortak geliştirmeler iade edilir, silah başına yeniden alınır
       let refund=0;for(const k of['upDmg','upRate','upMag','upReload'])for(let l=0,n=p.sharedWeaponUpgrades[k]||0;l<n;l++)refund+=Math.round(5+80*.015+l*3.5);
       if(refund>0){p.scrap=(p.scrap||0)+refund;setTimeout(()=>{if(running)floats.push({x:p.x,y:p.y-40,t:'Eski ortak geliştirmeler iade edildi: +'+refund+' HURDA',life:3})},500)}
       delete p.sharedWeaponUpgrades;
     }
     if(!Array.isArray(p.guns))p.guns=[];
-    for(let i=p.guns.length;i<WEAPONS.length;i++)p.guns[i]={own:false,ammo:0,res:0,upSpec:0}; // eski kayıtlara yeni silahlar eklenir
+    for(let i=0;i<WEAPONS.length;i++){
+      if(!p.guns[i])p.guns[i]={own:false,ammo:0,res:0,upSpec:0};
+      else p.guns[i]={own:!!p.guns[i].own,ammo:Number(p.guns[i].ammo)||0,res:Number(p.guns[i].res)||0,upSpec:Number(p.guns[i].upSpec)||0};
+    } // Eski kayıtlarda eksik olan silah yuvaları, Desert Eagle dahil, güvenli biçimde eklenir.
     zs=Array.isArray(d.zs)?d.zs.map(z=>({...z,parryHitTargets:[]})):[];
     bs=Array.isArray(d.bs)?d.bs.map(b=>({...b,vurdu:[]})):[];
     items=Array.isArray(d.items)?d.items:[];
@@ -2208,8 +2211,8 @@ function vurHit(w){
     let dealt=w.dmg*playerDamageMultiplier()*(kr?(w.critMult||2):1);
     // Metal sopayla, zombinin saldırı hazırlığı sırasında isabet ettirilen darbe karşı saldırıdır.
     let parry=false;
-    if(w.model==='bat'&&!z.isBoss&&z.attackWindup>0&&z.attackPending){
-      parry=true;z.attackWindup=0;z.attackPending=false;z.attackCd=Math.max(z.attackCd||0,1.5);
+    if(w.model==='bat'&&!z.isBoss&&z.attackWindup>0&&z.attackPending&&performance.now()>=(p.parryReadyAt||0)){
+      parry=true;p.parryReadyAt=performance.now()+2000;z.attackWindup=0;z.attackPending=false;z.attackCd=Math.max(z.attackCd||0,1.5);
       // Fırlatma yönü, oyuncunun baktığı yöne göre tam 90 derece saat yönündedir.
       // Kuzey -> Doğu, Doğu -> Güney, Güney -> Batı, Batı -> Kuzey.
       const force=z.big?850:1240;
