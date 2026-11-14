@@ -161,6 +161,7 @@ I18N_EN.push(...[["Oyunu Kaydet","Save Game"],["Kaydediliyor...","Saving..."],["
 I18N_EN.push(...[["Otomatik kayıt: ", "Autosave: "], ["Kayıt alındı", "Game saved"], ["Kayıt yüklendi", "Save loaded"], ["Kayıt başarısız: depolama alanı", "Save failed: storage full"], ["GÜDÜMLÜ • LOCK ON", "GUIDED • LOCK ON"], ["NOKTA ATIŞI • LOCK OFF", "POINT STRIKE • LOCK OFF"], ["KİLİTLENDİ", "LOCKED ON"], ["HEDEF YOK", "NO TARGET"], ["İki modlu omuzdan atılan füze. Lock On açıkken güdümlü füze hedefi takip eder; kapalıyken fareyle seçtiğin noktaya yukarıdan düşer.", "Dual-mode shoulder-fired missile. With Lock On enabled it fires a guided missile that tracks its target; with it off, it drops from above onto the point you select with the mouse."], ["Geniş Başlık", "Wide Warhead"], ["Füzenin patlama alanını büyütür.", "Enlarges the missile's blast radius."], ["Eski ortak geliştirmeler iade edildi: +", "Old shared upgrades refunded: +"], ["yalnızca bu silaha uygulanır, üst sınır x1.8", "applies only to this weapon, cap x1.8"], ["yalnızca bu silaha uygulanır, üst sınır x1.35", "applies only to this weapon, cap x1.35"], ["ve yalnızca bu silaha uygulanır. Şu an x", "and applies only to this weapon. Currently x"], ["ve yalnızca bu silaha uygulanır. Etkin hız x", "and applies only to this weapon. Effective speed x"]]);
 I18N_EN.push(...[["Füze Tareti", "Missile Turret"], ["FÜZE TARETİ", "MISSILE TURRET"], ["Yakındaki zombilere güdümlü füze fırlatır. Patlama alan hasarı verir.", "Fires guided missiles at nearby zombies. Causes area explosion damage."], ["Patlama hasarı ", "Blast damage "], [", yarıçap ", ", radius "], [", menzil ", ", range "], [" füze/sn.", " missiles/s."], ["AK-47 modelinden esinlenen hücum tüfeği. Güçlü ama geri tepmesi sert. Oyun dengesi için özellikleri uyarlanmıştır.", "Assault rifle inspired by the AK-47. Powerful but with heavy recoil. Stats adapted for game balance."], ["Sağlam Kabza", "Sturdy Grip"], ["AK-47 geri tepmesini azaltır.", "Reduces AK-47 recoil."], ["  •  TIKLA / BASILI TUT  •  X: çık", "  •  CLICK / HOLD  •  X: exit"], ["Yapı yerleştirme: Tıkla veya basılı tutup ilerle • R: duvar yönü • X / Esc: çık", "Placing structures: click or hold while moving • R: wall direction • X / Esc: exit"], ["Para yetersiz", "Not enough money"], ["Para bitti", "Out of money"]]);
 I18N_EN.push(...[[" Oyuncunun önüne kurulur.", " Built in front of the player."], ["Oyuncunun önüne 100 dayanıklılıklı duvar kur. R ile yön değiştir.", "Builds a wall with 100 durability in front of the player. R rotates it."]]);
+I18N_EN.push(...[["Oyuncunun önüne 100 dayanıklılıklı duvar kur. R ile yön değiştir. Duvarlar ızgaraya oturur ve birbirine bağlanır; M1 tuşunu basılı tutarak sürekli döşeyebilirsin.", "Builds a wall with 100 durability in front of the player. R rotates it. Walls snap to a grid and connect to each other; hold M1 to keep placing."]]);
 let LANG=(()=>{try{const v=localStorage.getItem('lc_lang');if(v==='tr'||v==='en')return v}catch(e){}return String(navigator.language||'tr').toLowerCase().startsWith('tr')?'tr':'en'})();
 const _i18nMap=new Map(I18N_EN),_i18nRe=new RegExp(I18N_EN.map(x=>x[0]).sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g'),_i18nCache=new Map();
 function tt(t){
@@ -368,6 +369,7 @@ let p,zs,bs,items,parts,score,kills,running,lastT,spawnTimer,shake,floats,rings,
 let damageLog=[];
 
 function reset(){
+  STRUCT_LEVELS={turret:1,missile:1,ammo:1,heal:1};
   p={x:0,y:0,r:12,hp:100,maxHp:100,baseMaxHp:100,stam:100,money:Z.bas,scrap:0,ores:{bakir:0,demir:0,gumus:0,altin:0},armorTier:0,g:0,reload:0,cd:0,parryReadyAt:0,ang:0,gadgetCd:{grenade:0,molotov:0,c4:0},lockTarget:null,accessories:[],accessoryLevels:{},equipped:{},accCap:20,rec:0,kv:0,bleed:0,hunger:100,sleep:100,energy:0,energyTimer:0,energyUseTimes:[],criticalRegen:0,fedTimer:0};
   damageLog=[];
   // Genel silah geliştirmeleri tek havuzda tutulur ve tüm ateşli silahlara uygulanır.
@@ -458,7 +460,31 @@ function threatLevel(){return bossKills*3} // tehdit seviyesi yalnızca boss yen
 function spawnInterval(){return Math.max(.35,(1.4-threatLevel()*.09)/Z.sayi)}
 function maxZombies(){return Math.min(40,8+threatLevel()*2)}
 const WAYPOINT_SAFE_RADIUS=300;
+const WAYPOINT_CELL=50; // yerdeki ızgara karesinin boyutu
+function snapToCellCenter(v){return Math.floor(v/WAYPOINT_CELL)*WAYPOINT_CELL+WAYPOINT_CELL/2} // karenin tam ortası
 function inWaypointSafeZone(x,y){return waypoints.some(w=>Math.hypot(x-w.x,y-w.y)<(w.radius||WAYPOINT_SAFE_RADIUS));}
+// ===== Zombi türleri: tüm denge değerleri burada, buradan değiştirebilirsin =====
+// hp: temel can (zorluk ve tehdit ile çarpılır) | speed: [min,max] hız | dmg: vuruş hasarı | r: boyut | val: para | score: skor
+// armor: mermi hasar çarpanı (düşük = dayanıklı) | meleeArmor: yakın dövüş hasar çarpanı | knock: geri itilme | stun: sersemleme süresi çarpanı
+// atkCd: iki saldırı arası (sn) | windup: saldırı hazırlığı (sn) | bleed: kanama biriktirme | hpGrow: tehditle can artışı | speedCap: tehditle hız artışı üst sınırı
+const ZOMBIE_TYPES={
+  normal: {ad:'Normal', hp:2,   speed:[55,75],   dmg:9,  r:13, val:10, score:10, armor:1,   meleeArmor:1,  knock:1,   stun:1,  atkCd:1.2, windup:.32, bleed:1.2, hpGrow:1,   speedCap:1.5,  spawn:null},
+  fast:   {ad:'Hızlı',  hp:1.4, speed:[100,110], dmg:7,  r:12, val:18, score:12, armor:1,   meleeArmor:1,  knock:1.2, stun:1,  atkCd:.8,  windup:.22, bleed:1.5, hpGrow:.8,  speedCap:1.3,  spawn:{minTier:1,perTier:.06,max:.3}},
+  big:    {ad:'İri',    hp:10,  speed:[36,40],   dmg:24, r:22, val:60, score:60, armor:.85, meleeArmor:1,  knock:.45, stun:.6, atkCd:1.6, windup:.45, bleed:2.5, hpGrow:1.15,speedCap:1.25, spawn:{minTier:1,perTier:.04,max:.25}},
+  armor:  {ad:'Zırhlı', hp:7,   speed:[42,46],   dmg:12, r:16, val:45, score:25, armor:.5,  meleeArmor:.8, knock:.6,  stun:.8, atkCd:1.3, windup:.36, bleed:2,   hpGrow:1.1, speedCap:1.3,  spawn:{minTier:1,perTier:.05,max:.2}},
+  special:{ad:'Özel',   hp:2.5, speed:[80,86],   dmg:6,  r:15, val:40, score:25, armor:1,   meleeArmor:1,  knock:1,   stun:1,  atkCd:1.1, windup:.3,  bleed:3,   hpGrow:.9,  speedCap:1.4,  spawn:{minTier:8,perTier:.03,max:.12}}
+};
+function ztype(z){return ZOMBIE_TYPES[z.tur]||ZOMBIE_TYPES.normal}
+function pickZombieType(tier){
+  for(const k of['special','armor','big','fast']){const sp=ZOMBIE_TYPES[k].spawn;if(sp&&tier>=sp.minTier&&Math.random()<Math.min(sp.perTier*(tier-sp.minTier+1),sp.max))return k}
+  return 'normal';
+}
+function buildZombie(type,x,y){
+  const T=ZOMBIE_TYPES[type]||ZOMBIE_TYPES.normal,tier=threatLevel();
+  const hpS=1+(Math.min(1+.12*tier,4)-1)*T.hpGrow,spS=Math.min(1+.025*tier,T.speedCap),dmS=Math.min(1+.04*tier,2.5);
+  const hp0=T.hp*Z.can*hpS,sp=(T.speed[0]+Math.random()*(T.speed[1]-T.speed[0]))*Z.hiz*spS;
+  return {x,y,r:T.r,hp:hp0,max:hp0,attackCd:0,sp,dmg:T.dmg*Z.hasar*dmS,val:Math.max(1,Math.round(T.val*Z.para*Math.min(1+.03*tier,5))),big:type==='big',fast:type==='fast',tur:type,armor:T.armor,meleeArmor:T.meleeArmor,hit:0};
+}
 function spawnZ(){
   let x=0,y=0,valid=false;
   // Güvenli bölge, oyuncu içeride olsa bile zombi doğma alanı değildir.
@@ -471,13 +497,7 @@ function spawnZ(){
     if(!inWaypointSafeZone(x,y)){valid=true;break;}
   }
   if(!valid)return;
-  const tier=threatLevel();
-  const ozel=tier>=8&&Math.random()<Math.min(.03*(tier-7),.12),zirh=!ozel&&tier>=1&&Math.random()<Math.min(.05*tier,.2);
-  const big=!ozel&&!zirh&&Math.random()<Math.min(.04*tier,.25);
-  const fast=!big&&!ozel&&!zirh&&Math.random()<Math.min(.06*tier,.3);
-  const hpScale=Math.min(1+.12*tier,4),speedScale=Math.min(1+.025*tier,1.5),damageScale=Math.min(1+.04*tier,2.5);
-  const hp0=(big?6:zirh?5:ozel?3:2)*Z.can*hpScale;
-  zs.push({x,y,r:big?22:zirh?16:ozel?15:13,hp:hp0,max:hp0,attackCd:0,sp:(big?42:zirh?46:ozel?70:fast?95:55+Math.random()*20)*Z.hiz*speedScale,dmg:(big?18:zirh?14:9)*Z.hasar*damageScale,val:Math.max(1,Math.round((big?40:zirh?30:ozel?35:fast?15:10)*Z.para*Math.min(1+.03*tier,5))),big,fast,tur:ozel?'special':zirh?'armor':big?'big':fast?'fast':'normal',armor:zirh?.5:1,hit:0});
+  zs.push(buildZombie(pickZombieType(threatLevel()),x,y));
 }
 const MELEE_ANIM={axe:{dur:.26,delay:.08},hammer:{dur:.5,delay:.28},chainsaw:{dur:.1,delay:0},crowbar:{dur:.24,delay:0},knife:{dur:.16,delay:0},bat:{dur:.26,delay:0},katana:{dur:.18,delay:0},scythe:{dur:.32,delay:.1}};
 function drawMeleeWeapon(w,jacket){
@@ -604,7 +624,7 @@ function drawBossBar(){
   cx.fillStyle='#2a1210';cx.fillRect(x,y,w,10);cx.fillStyle='#c0302a';cx.fillRect(x,y,w*Math.max(0,boss.hp/boss.max),10);
 }
 function registerKill(z){
-  kills++;score+=z.big?50:10;
+  kills++;score+=z.isBoss?300:ztype(z).score;
   if(z.isBoss)onBossDead(z);
   if(kills>0&&kills%100===0)bossCall();
 }
@@ -936,7 +956,7 @@ function update(dt){
   if(p.reload>0){p.reload-=dt;
     if(p.reload<=0){const w=cw(),g=cs(),need=w.mag-g.ammo,take=Math.min(need,g.res);g.ammo+=take;g.res-=take;}}
   if(mouse.down&&!buildMode)shoot();
-  else if(mouse.down&&buildMode&&(!lastBuild||Math.hypot(buildPos().x-lastBuild.x,buildPos().y-lastBuild.y)>=(buildMode.type==='wall'?46:48)))placeBuild();
+  else if(mouse.down&&buildMode&&(buildMode.type==='wall'||!lastBuild||Math.hypot(buildPos().x-lastBuild.x,buildPos().y-lastBuild.y)>=48))placeBuild();
 
   // Oyun içi ekipmanlar
   for(const d of devices){
@@ -1036,10 +1056,10 @@ function update(dt){
       const spd=Math.hypot(p.vx,p.vy),dxz=z.x-p.x,dyz=z.y-p.y,dz=Math.hypot(dxz,dyz)||1;
       if(spd>60&&dz<p.r+z.r+6){
         z.slidHit=p.slideId;
-        const m=z.big?.5:z.tur=='armor'?.7:1,push=Math.min(85,35+spd*.22)*m;
+        const m=z.isBoss?.5:ztype(z).knock,push=Math.min(85,35+spd*.22)*m;
         let dxk=p.vx/spd*.6+dxz/dz*.4,dyk=p.vy/spd*.6+dyz/dz*.4;const dl=Math.hypot(dxk,dyk)||1;
         z.kvx=dxk/dl*push*7;z.kvy=dyk/dl*push*7;
-        z.stun=Math.max(z.stun||0,(2+1.5*Math.min(1,spd/250))*(z.big?.7:1));
+        z.stun=Math.max(z.stun||0,(2+1.5*Math.min(1,spd/250))*(z.isBoss?.7:ztype(z).stun));
         p.vx*=.92;p.vy*=.92;shake=Math.max(shake,4);
         burst(z.x,z.y,6,'#d8c9a0');rings.push({x:z.x,y:z.y,r:26,life:.25});
         floats.push({x:z.x,y:z.y-18,t:'SERSEM',life:.9});soundFx('melee');
@@ -1082,9 +1102,9 @@ function update(dt){
         }
       }
     }else if(!(z.stun>0)&&pd<=minDist+.5&&z.attackCd<=0){
-      z.attackWindup=.32;
+      z.attackWindup=z.isBoss?.4:ztype(z).windup;
       z.attackPending=true;
-      z.attackCd=z.big?1.45:z.tur==='armor'?1.3:z.fast?0.95:1.2;
+      z.attackCd=z.isBoss?1.4:ztype(z).atkCd;
     }
   }
   // eşyalar
@@ -1279,10 +1299,15 @@ function draw(){
   }
 
   // Oyuncunun kurduğu savunmalar
-  for(const wall of walls){
-    cx.fillStyle='#68766a';cx.fillRect(wall.x-wall.w/2,wall.y-wall.h/2,wall.w,wall.h);
-    cx.strokeStyle='#b5c1a8';cx.lineWidth=2;cx.strokeRect(wall.x-wall.w/2,wall.y-wall.h/2,wall.w,wall.h);
-    cx.fillStyle='#b8d86b';cx.fillRect(wall.x-wall.w/2,wall.y-wall.h/2-6,wall.w*Math.max(0,wall.hp/wall.max),3);
+  if(walls.length){ // önce tüm dış çizgiler, sonra tüm dolgular: komşu duvarların arasındaki çizgi kaybolur, tek parça görünür
+    cx.fillStyle='#b5c1a8';
+    for(const wall of walls)cx.fillRect(wall.x-wall.w/2-2,wall.y-wall.h/2-2,wall.w+4,wall.h+4);
+    for(const wall of walls){
+      const k=Math.max(0,wall.hp/wall.max);
+      cx.fillStyle=k>.66?'#68766a':k>.33?'#5d6a5b':'#52584f';
+      cx.fillRect(wall.x-wall.w/2,wall.y-wall.h/2,wall.w,wall.h);
+    }
+    for(const wall of walls)if(wall.hp<wall.max){cx.fillStyle='#b8d86b';cx.fillRect(wall.x-wall.w/2,wall.y-wall.h/2-6,wall.w*Math.max(0,wall.hp/wall.max),3)}
   }
   for(const t of turrets){
     if(t.kind==='missile'){drawMissileTurret(t);continue}
@@ -1579,7 +1604,7 @@ function savePayload(){
   const safeBoss=boss?(()=>{const q={...boss};delete q.parryHitTargets;return q})():null;
   return {
     version:3,savedAt:Date.now(),difficulty:Object.keys(ZORLUK).find(k=>ZORLUK[k]===Z)||'normal',
-    p:player,zs:safeZs,bs:safeBs,items,devices,zones,walls,turrets,ammoMachines,healers,beds,waypoints,ores,campfires,
+    p:player,zs:safeZs,bs:safeBs,items,devices,zones,walls,turrets,ammoMachines,healers,beds,waypoints,ores,campfires,structureLevels:{...STRUCT_LEVELS},
     chunks:Array.from(chunks.entries()),boss:safeBoss,bossQueue,bossKills,bossT,dayTime,weather,weatherTimer,
     score,kills,spawnTimer,cheats:{...cheats},lockOn
   };
@@ -1634,9 +1659,17 @@ function loadGame(){
     turrets=Array.isArray(d.turrets)?d.turrets:[];
     ammoMachines=Array.isArray(d.ammoMachines)?d.ammoMachines:[];
     healers=Array.isArray(d.healers)?d.healers:[];
+    STRUCT_LEVELS={turret:Math.max(1,Number(d.structureLevels?.turret)||1,...turrets.filter(t=>t.kind!=='missile').map(t=>Number(t.level)||1)),
+      missile:Math.max(1,Number(d.structureLevels?.missile)||1,...turrets.filter(t=>t.kind==='missile').map(t=>Number(t.level)||1)),
+      ammo:Math.max(1,Number(d.structureLevels?.ammo)||1,...ammoMachines.map(m=>Number(m.level)||1)),
+      heal:Math.max(1,Number(d.structureLevels?.heal)||1,...healers.map(h=>Number(h.level)||1))};
+    // Eski kayıtlardaki farklı seviyeler, türün ortak mağaza seviyesine eşitlenir.
+    turrets.forEach(t=>t.level=STRUCT_LEVELS[t.kind==='missile'?'missile':'turret']);
+    ammoMachines.forEach(m=>m.level=STRUCT_LEVELS.ammo);
+    healers.forEach(h=>h.level=STRUCT_LEVELS.heal);
     beds=Array.isArray(d.beds)?d.beds:[];
     campfires=Array.isArray(d.campfires)?d.campfires.slice(0,1):[];
-    waypoints=Array.isArray(d.waypoints)?d.waypoints.filter(w=>Number.isFinite(w.x)&&Number.isFinite(w.y)).slice(0,1):[];
+    waypoints=Array.isArray(d.waypoints)?d.waypoints.filter(w=>Number.isFinite(w.x)&&Number.isFinite(w.y)).slice(0,1).map(w=>({...w,x:snapToCellCenter(w.x),y:snapToCellCenter(w.y)})):[];
     if(Array.isArray(d.chunks))chunks=new Map(d.chunks);
     boss=zs.find(z=>z.isBoss)||d.boss||null;
     bossQueue=d.bossQueue||0;bossKills=d.bossKills||0;bossT=d.bossT||0;
@@ -2007,7 +2040,7 @@ function renderSettings(){
 }
 
 const RECOIL={ak:.55,javelin:.9,pistol:.35,revolver:.6,smg:.22,shotgun:.9,rifle:.3,sniper:1,flame:.05,lmg:.28,rocket:1.2,dshotgun:1.1,crossbow:.4,glauncher:.8,minigun:.2,deagle:.75,p90:.24,'Tabanca':.35,'Revolver':.6,'Hafif Makineli':.22,'Pompalı':.9,'Tüfek':.3,'Keskin Nişancı':1,'Alev Atar':.05,'Ağır Makineli':.28,'Roketatar':1.2};
-const BLEED_MAX=10,BLEED_ADD={normal:1.2,fast:1.5,big:2.5,armor:2,special:3};
+const BLEED_MAX=10,BLEED_ADD=Object.assign(Object.fromEntries(Object.entries(ZOMBIE_TYPES).map(([k,v])=>[k,v.bleed])),{boss:3});
 function critChance(w){return Math.min(.65,.08+(w.dmg>=4?.1:0)+(w.critBonus||0)+gearBonus('critChance'))}
 function kritikFx(z){floats.push({x:z.x,y:z.y-14,t:'KRİTİK!',life:.8});rings.push({x:z.x,y:z.y,r:28,life:.3});burst(z.x,z.y,8,'#ffe066')}
 function zBomb(z){
@@ -2021,11 +2054,17 @@ const STRUCT={
   ammo:{ad:'Mermi Makinesi',max:20,base:150,renk:'#d9b24c',list:()=>ammoMachines,ack:'Yakındayken yedek cephaneyi doldurur.'},
   heal:{ad:'İyileştirme Makinesi',max:20,base:200,renk:'#5fc78a',list:()=>healers,ack:'Yakındaki oyuncuyu zamanla iyileştirir.'}
 };
+// Mağaza yükseltmeleri yapı türü genelindedir; mevcut ve gelecekte kurulacak yapıları etkiler.
+let STRUCT_LEVELS={turret:1,missile:1,ammo:1,heal:1};
+function structCount(k){return STRUCT[k].list().length}
 function fmtPara(n){return n<1e7?String(Math.round(n)):n.toExponential(2).replace('e+','e')}
+function upgUnitPrice(k){
+  // Bir yapının bir seviye yükseltilmesinin birim fiyatı.
+  return Math.max(10,Math.round(STRUCT[k].base*.35));
+}
 function upgPrice(k,lv){
-  // Her yapı türünün yükseltme fiyatı sabittir; seviye yükseldikçe artmaz.
-  const s=STRUCT[k];
-  return Math.max(10,Math.round(s.base*.35));
+  // Mağaza yükseltmesi o türdeki bütün mevcut yapılara uygulanır.
+  return structCount(k)*upgUnitPrice(k);
 }
 function turretStat(t){const l=t.level||1;return{dmg:1.5*l,range:330+8*l,cd:Math.max(.06,.62*Math.pow(.95,l-1))}}
 function missileStat(t){const l=t.level||1;return{dmg:8+2.5*l,rad:70+2*l,range:520+18*(l-1),cd:Math.max(.7,2.4*Math.pow(.95,l-1))}}
@@ -2059,9 +2098,21 @@ function upgEffect(k,l){
 function enYakinYapi(k){let best=null,bd=UPG_RANGE;for(const o of STRUCT[k].list()){const d=Math.hypot(o.x-p.x,o.y-p.y);if(d<bd){bd=d;best=o}}return best}
 function yakinYapi(){let best=null,bd=UPG_RANGE;for(const k of Object.keys(STRUCT))for(const o of STRUCT[k].list()){const d=Math.hypot(o.x-p.x,o.y-p.y);if(d<bd){bd=d;best={k,o}}}return best}
 function upgrade(k,o){
-  if(!o||(o.level||1)>=STRUCT[k].max)return false;
-  const fy=upgPrice(k,o.level||1);if(p.money<fy)return false;
-  p.money-=fy;o.invested=(o.invested||STRUCT[k].base)+fy;o.level=(o.level||1)+1;soundFx('buy');burst(o.x,o.y,14,STRUCT[k].renk);floats.push({x:o.x,y:o.y-20,t:'Lv.'+o.level,life:1});return true;
+  if(!STRUCT[k])return false;
+  const list=STRUCT[k].list(),level=STRUCT_LEVELS[k]||1;
+  if(!list.length||level>=STRUCT[k].max)return false;
+  const unit=upgUnitPrice(k),fy=list.length*unit;
+  if(p.money<fy)return false;
+  p.money-=fy;
+  STRUCT_LEVELS[k]=level+1;
+  for(const item of list){
+    item.invested=(item.invested||STRUCT[k].base)+unit;
+    item.level=STRUCT_LEVELS[k];
+    burst(item.x,item.y,5,STRUCT[k].renk);
+  }
+  soundFx('buy');
+  floats.push({x:p.x,y:p.y-24,t:STRUCT[k].ad+' • Tüm yapılar Lv.'+STRUCT_LEVELS[k],life:1.5});
+  return true;
 }
 function treePush(){
   // Çarpışma yalnızca oyuncunun bulunduğu ve komşu chunk'larda aranır.
@@ -2094,7 +2145,15 @@ function wallPush(){
   }
 }
 const BUILD_UNIT=12,BUILD_DIST=4; // yapı hayaleti oyuncunun baktığı yönde BUILD_DIST birim (1 birim = 12 piksel) ilerisinde durur
-function buildPos(){const d=BUILD_UNIT*BUILD_DIST;return{x:p.x+Math.cos(p.ang||0)*d,y:p.y+Math.sin(p.ang||0)*d}}
+const WALL_G=74; // duvar uzunluğu = ızgara hücresi
+function buildPos(){
+  const d=BUILD_UNIT*BUILD_DIST,x=p.x+Math.cos(p.ang||0)*d,y=p.y+Math.sin(p.ang||0)*d;
+  if(buildMode&&buildMode.type==='wall'){ // yatay duvarlar yatay çizgilere, dikey duvarlar dikey çizgilere oturur: köşeler ve uçlar birleşir
+    if(!buildMode.rot)return{x:WALL_G*(Math.floor(x/WALL_G)+.5),y:WALL_G*Math.round(y/WALL_G)};
+    return{x:WALL_G*Math.round(x/WALL_G),y:WALL_G*(Math.floor(y/WALL_G)+.5)};
+  }
+  return{x,y};
+}
 let lastBuild=null;
 function canPlaceHere(x,y){
   const lim=buildMode&&buildMode.type==='wall'?24:30;
@@ -2124,10 +2183,10 @@ function placeBuild(){
     const horiz=!buildMode.rot;
     walls.push({x,y,w:horiz?74:18,h:horiz?18:74,hp:100,max:100,rot:buildMode.rot||0,invested:buildMode.price});
   }
-  if(buildMode.type==='turret')turrets.push({x,y,level:1,cd:0,ang:p.ang,invested:buildMode.price});
-  if(buildMode.type==='missile')turrets.push({x,y,level:1,cd:0,ang:p.ang,invested:buildMode.price,kind:'missile'});
-  if(buildMode.type==='ammo')ammoMachines.push({x,y,tick:0,level:1,invested:buildMode.price});
-  if(buildMode.type==='heal')healers.push({x,y,level:1,tick:0,invested:buildMode.price});
+  if(buildMode.type==='turret')turrets.push({x,y,level:STRUCT_LEVELS.turret||1,cd:0,ang:p.ang,invested:buildMode.price});
+  if(buildMode.type==='missile')turrets.push({x,y,level:STRUCT_LEVELS.missile||1,cd:0,ang:p.ang,invested:buildMode.price,kind:'missile'});
+  if(buildMode.type==='ammo')ammoMachines.push({x,y,tick:0,level:STRUCT_LEVELS.ammo||1,invested:buildMode.price});
+  if(buildMode.type==='heal')healers.push({x,y,level:STRUCT_LEVELS.heal||1,tick:0,invested:buildMode.price});
   if(buildMode.type==='bed')beds.push({x,y,hp:80,max:80});
   lastBuild={x,y}; // inşa modu açık kalır; X veya Esc ile çıkılır
   soundFx('build');
@@ -2278,15 +2337,16 @@ function renderShop(){
     h+=mkart('Yiyecek','Malzeme','Açlığı büyük ölçüde doldurur.',40,'#c9a14c','<button data-a="food"'+(p.money<40||p.hunger>=100?' disabled':'')+'>Satın al</button>');
     h+=mkart('Enerji İçeceği','Malzeme','8 saniye boyunca hareket hızını x1.5 yapar. Canın 25 altındayken kullanırsan 5 saniye boyunca saniyede 2 can yenilersin. 30 saniyede 3. ve sonraki kullanımlar can götürür. X ile iç.',75,'#54c6d5','<button data-a="energy"'+(p.money<75?' disabled':'')+'>Satın al</button>');
     h+=mkart('Taşınabilir Yatak','Malzeme','Yere yerleştir. Yanına gidip F ile dinlen, uykunu doldur.',80,'#8a7ab0','<button data-a="bed"'+(p.money<80?' disabled':'')+'>Yerleştir</button>');
-    h+=mkart('Duvar','Savunma','Oyuncunun önüne 100 dayanıklılıklı duvar kur. R ile yön değiştir.',15,'#8fa68a','<button data-a="duvar"'+(p.money<15?' disabled':'')+'>Yerleştir</button>');
+    h+=mkart('Duvar','Savunma','Oyuncunun önüne 100 dayanıklılıklı duvar kur. R ile yön değiştir. Duvarlar ızgaraya oturur ve birbirine bağlanır; M1 tuşunu basılı tutarak sürekli döşeyebilirsin.',15,'#8fa68a','<button data-a="duvar"'+(p.money<15?' disabled':'')+'>Yerleştir</button>');
     for(const k of ['turret','missile','ammo','heal']){
       const S=STRUCT[k],near=enYakinYapi(k);
       h+=mkart('Yeni '+S.ad+' Kur','Savunma',S.ack+' Oyuncunun önüne kurulur.',fmtPara(S.base),S.renk,'<button data-a="yeni" data-k="'+k+'"'+(p.money<S.base?' disabled':'')+'>Yerleştir</button>');
+      const adet=structCount(k),l=STRUCT_LEVELS[k]||1,unit=upgUnitPrice(k);
       let ack,fiyat,dis=true;
-      if(!near){ack=STRUCT[k].list().length?'Yapı çok uzakta. '+UPG_RANGE+' piksel içine yaklaş (veya yanında F tuşuna bas).':'Henüz bu türden bir yapın yok.';fiyat='-'}
-      else if((near.level||1)>=S.max){ack=S.ad+' en yüksek seviyede (Lv.'+S.max+').';fiyat='MAKS'}
-      else{const l=near.level||1;fiyat=upgPrice(k,l);ack='En yakın yapı Lv.'+l+' > Lv.'+(l+1)+'. '+upgEffect(k,l+1);dis=p.money<fiyat;if(dis)ack+=' Yetersiz para.';fiyat=fmtPara(fiyat)}
-      h+=mkart(S.ad+' Yükselt','Savunma',ack,fiyat,S.renk,'<button data-a="yukselt" data-k="'+k+'"'+(dis?' disabled':'')+'>Yükselt</button>');
+      if(!adet){ack='Önce en az bir '+S.ad.toLocaleLowerCase('tr')+' kur. Bu yükseltme daha sonra kurulacak yapılara da uygulanır.';fiyat='-'}
+      else if(l>=S.max){ack=S.ad+' türündeki tüm yapılar en yüksek seviyede (Lv.'+S.max+').';fiyat='MAKS'}
+      else{fiyat=adet*unit;ack=adet+' mevcut yapının tamamı Lv.'+l+' > Lv.'+(l+1)+' yükseltilir. Sonradan kurulanlar da Lv.'+(l+1)+' başlar. Birim fiyat: $'+fmtPara(unit)+'.';dis=p.money<fiyat;if(dis)ack+=' Yetersiz para.';fiyat=fmtPara(fiyat)}
+      h+=mkart(S.ad+' Yükselt • Tümü ('+adet+')','Savunma',ack,fiyat,S.renk,'<button data-a="yukselt" data-k="'+k+'"'+(dis?' disabled':'')+'>Tümünü yükselt</button>');
     }
   }
   h+='</div><button data-a="kapat" class="sh-kapat">Oyuna dön (B)</button>';
@@ -2351,9 +2411,8 @@ shopEl.addEventListener('click',e=>{
   else if(a=='duvar'){if(p.money>=15)beginBuild('wall',15)}
   else if(a=='yeni'){const k=b.dataset.k;if(STRUCT[k]&&p.money>=STRUCT[k].base)beginBuild(k,STRUCT[k].base)}
   else if(a=='yukselt'){
-    const k=b.dataset.k,o=STRUCT[k]&&enYakinYapi(k);
-    if(o&&(o.level||1)<STRUCT[k].max){const fy=upgPrice(k,o.level||1);
-      upgrade(k,o);}
+    const k=b.dataset.k;
+    if(STRUCT[k])upgrade(k,null);
   }
   if(shopOpen)renderShop();
 });
@@ -2464,22 +2523,32 @@ function vurHit(w){
       burst(z.x,z.y,12,'#d7dce0');
     }
     if(!parry){
-      z.hp-=dealt;z.hit=.12;kayitHasar(dealt,false);burst(z.x,z.y,6,'#7a1f1f');if(kr)kritikFx(z);
+      const dm=dealt*(z.meleeArmor||1);z.hp-=dm;z.hit=.12;kayitHasar(dm,false);burst(z.x,z.y,6,'#7a1f1f');if(kr)kritikFx(z);
       if(z.hp<=0)oldur(z);
     }
   }
-  // Yakın dövüş silahı ağaca isabet ederse, ağaç kısa aralıkla meyve bırakır.
-  for(const ch of chunks.values())for(const t of (ch.trees||[])){
-    if((t.fruitCd||0)>0)continue;
-    const tx=t.x,ty=t.y-t.r*.68*t.h,dx=tx-p.x,dy=ty-p.y,d=Math.hypot(dx,dy);
-    if(d>w.menzil+t.r*.72)continue;
-    let da=Math.atan2(dy,dx)-p.ang;da=Math.atan2(Math.sin(da),Math.cos(da));
-    if(Math.abs(da)>w.arc/2&&d>p.r+t.r*.72)continue;
-    t.fruitCd=2.5;
-    items.push({x:t.x+(Math.random()-.5)*t.r*.7,y:t.y-t.r*.4,t:'fruit',life:30});
-    floats.push({x:t.x,y:t.y-t.r,t:'MEYVE DÜŞTÜ',life:1.2});
-    burst(t.x,t.y-t.r*.4,5,'#e65a45');
-    break;
+  // Yakın dövüş darbeleri ağacı da keser: aynı ağaca 3 isabet ağacı kaldırır.
+  for(const ch of chunks.values()){
+    const trees=ch.trees||[];
+    for(let ti=0;ti<trees.length;ti++){
+      const t=trees[ti];
+      const tx=t.x,ty=t.y-t.r*.68*t.h,dx=tx-p.x,dy=ty-p.y,d=Math.hypot(dx,dy);
+      if(d>w.menzil+t.r*.72)continue;
+      let da=Math.atan2(dy,dx)-p.ang;da=Math.atan2(Math.sin(da),Math.cos(da));
+      if(Math.abs(da)>w.arc/2&&d>p.r+t.r*.72)continue;
+      t.meleeHits=(t.meleeHits||0)+1;
+      if(t.meleeHits>=3){
+        trees.splice(ti,1);
+        floats.push({x:t.x,y:t.y-t.r,t:'AĞAÇ KESİLDİ',life:1.3});
+        burst(t.x,t.y-t.r*.4,12,'#8b6842');
+      }else if((t.fruitCd||0)<=0){
+        t.fruitCd=2.5;
+        items.push({x:t.x+(Math.random()-.5)*t.r*.7,y:t.y-t.r*.4,t:'fruit',life:30});
+        floats.push({x:t.x,y:t.y-t.r,t:'MEYVE DÜŞTÜ',life:1.2});
+        burst(t.x,t.y-t.r*.4,5,'#e65a45');
+      }
+      break;
+    }
   }
 }
 function komut(raw){
@@ -2544,30 +2613,21 @@ function cheatCreate(kind){
     walls.push({x,y,w:74,h:18,hp:100,max:100,rot:0,invested:0});
     konYaz('Duvar oluşturuldu.','#b8d86b');
   }else if(kind==='turret'){
-    turrets.push({x,y,level:1,cd:0,ang:p.ang||0,invested:0});
+    turrets.push({x,y,level:STRUCT_LEVELS.turret||1,cd:0,ang:p.ang||0,invested:0});
     konYaz('Taret oluşturuldu.','#b8d86b');
   }else if(kind==='ammoMachine'){
-    ammoMachines.push({x,y,tick:0,level:1,invested:0});
+    ammoMachines.push({x,y,tick:0,level:STRUCT_LEVELS.ammo||1,invested:0});
     konYaz('Mermi makinesi oluşturuldu.','#b8d86b');
   }else if(kind==='healer'){
-    healers.push({x,y,level:1,tick:0,invested:0});
+    healers.push({x,y,level:STRUCT_LEVELS.heal||1,tick:0,invested:0});
     konYaz('Sağlık makinesi oluşturuldu.','#b8d86b');
   }else if(kind==='bed'){
     beds.push({x,y,hp:80,max:80});
     konYaz('Yatak oluşturuldu.','#b8d86b');
   }else if(kind.startsWith('zombie_')){
-    // Önce oyunun mevcut zombi oluşturma mantığını kullan, ardından istenen türü sabitle.
-    spawnZ();
-    const z=zs[zs.length-1];
-    const tier=threatLevel(), hpScale=Math.min(1+.12*tier,4), speedScale=Math.min(1+.025*tier,1.5), damageScale=Math.min(1+.04*tier,2.5);
     const type=kind.slice(7);
-    z.big=type==='big'; z.fast=type==='fast'; z.tur=type==='armor'?'armor':type==='special'?'special':type;
-    z.armor=type==='armor'?.5:1;
-    z.r=type==='big'?22:type==='armor'?16:type==='special'?15:13;
-    z.hp=z.max=(type==='big'?6:type==='armor'?5:type==='special'?3:2)*Z.can*hpScale;
-    z.sp=(type==='big'?42:type==='armor'?46:type==='special'?70:type==='fast'?95:55)*Z.hiz*speedScale;
-    z.dmg=(type==='big'?18:type==='armor'?14:9)*Z.hasar*damageScale;
-    z.val=Math.max(1,Math.round((type==='big'?40:type==='armor'?30:type==='special'?35:type==='fast'?15:10)*Z.para*Math.min(1+.03*tier,5)));
+    const n0=zs.length;spawnZ(); // konumu oyunun kendi doğma mantığı seçer
+    if(zs.length>n0){const z0=zs.pop();zs.push(buildZombie(type,z0.x,z0.y))}
     konYaz(({normal:'Normal',fast:'Hızlı',big:'İri',armor:'Zırhlı',special:'Özel'}[type]||'')+' zombi oluşturuldu.','#b8d86b');
   }else if(kind==='accessory'){
     const sel=document.getElementById('createAccessory');
@@ -2651,9 +2711,10 @@ function createWaypoint(){
   // Oyunda yalnızca tek güvenli bölge bulunabilir; mevcut bölge korunur.
   if(waypoints.length){floats.push({x:p.x,y:p.y-28,t:'Zaten bir güvenli bölgen var.',life:1.8});return;}
   const name='Güvenli Bölge 1';
-  waypoints.push({x:p.x,y:p.y,name,radius:WAYPOINT_SAFE_RADIUS});
-  floats.push({x:p.x,y:p.y-30,t:'WAYPOINT OLUŞTURULDU: '+name,life:2});
-  rings.push({x:p.x,y:p.y,r:WAYPOINT_SAFE_RADIUS,life:.8});soundFx('select');
+  const wx=snapToCellCenter(p.x),wy=snapToCellCenter(p.y); // waypoint bulunduğu karenin tam ortasına konur
+  waypoints.push({x:wx,y:wy,name,radius:WAYPOINT_SAFE_RADIUS});
+  floats.push({x:wx,y:wy-30,t:'WAYPOINT OLUŞTURULDU: '+name,life:2});
+  rings.push({x:wx,y:wy,r:WAYPOINT_SAFE_RADIUS,life:.8});soundFx('select');
   // Tam dünya kaydı büyük olabileceğinden tuşa basıldığı anda senkron kayıt yapma.
   // Waypoint mevcut 60 saniyelik otomatik kayda ve çıkış kaydına dahil edilir.
 }
