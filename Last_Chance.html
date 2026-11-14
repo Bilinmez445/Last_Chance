@@ -291,6 +291,7 @@ const WEAPON_SPECIALS=[
   {name:'Sağlam Kabza',desc:'AK-47 geri tepmesini azaltır.',effect:l=>'Geri tepme: -%'+Math.round((1-Math.pow(.9,l))*100)}
 ];
 
+I18N_EN.push(['Gaz Tüpü','Gas Canister'],['Su Şişesi','Water Bottle'],['Maksimum dayanıklılığı %10 artırır.','Increases maximum stamina by 10%.'],['Maksimum dayanıklılık +%','Maximum stamina +%']);
 const ACCESSORIES={
   vest:{name:'Kompozit Yelek',slot:'Gövde',color:'#6da6c9',desc:'Maksimum can +30. Gelen hasar %15 azalır.',hp:30,damageTaken:.85},
   boots:{name:'Koşu Botları',slot:'Ayak',color:'#b8d86b',desc:'Hareket hızı %22 artar.',speed:1.22},
@@ -314,7 +315,9 @@ const ACCESSORIES={
   ammoRig:{name:'Hızlı Mühimmat Askısı',slot:'Sırt',color:'#b5a16a',desc:'Cephane toplama miktarını artırır ve doldurmayı hızlandırır.',ammoPickup:1.25,reloadSpeed:1.18},
   shockGrip:{name:'Şok Emici Kabza',slot:'Silah',color:'#75b9b7',desc:'Geri tepmeyi azaltır ve kritik vuruş ihtimalini artırır.',recoil:.6,critChance:.04},
   reinforcedArmor:{name:'Güçlendirilmiş Gövde Plakası',slot:'Gövde',color:'#7197b7',desc:'Maksimum canı artırır ve alınan hasarı azaltır.',hp:30,damageTaken:.85},
-  magneticHarness:{name:'Manyetik Toplayıcı',slot:'Alet',color:'#d1a64d',desc:'Ganimetleri daha uzaktan toplar ve normal ganimet düşme şansını artırır.',pickup:1.6,supplyDrop:.15}
+  magneticHarness:{name:'Manyetik Toplayıcı',slot:'Alet',color:'#d1a64d',desc:'Ganimetleri daha uzaktan toplar ve normal ganimet düşme şansını artırır.',pickup:1.6,supplyDrop:.15},
+  gasCanister:{name:'Gaz Tüpü',slot:'Destek',color:'#91b6c8',desc:'Maksimum dayanıklılığı %10 artırır.',staminaCapacity:1.10},
+  waterBottle:{name:'Su Şişesi',slot:'Destek',color:'#69b9d6',desc:'Maksimum dayanıklılığı %10 artırır.',staminaCapacity:1.10}
 };
 
 /* ====== YENİ SİSTEMLER ====== */
@@ -404,6 +407,7 @@ function craftArmor(){
   floats.push({x:p.x,y:p.y-28,t:names[next]+' üretildi!',life:2});soundFx('buy');
 }
 function placeCampfire(){
+  if(campfires.length>=1){floats.push({x:p.x,y:p.y-25,t:'En fazla 1 kamp ateşi yerleştirebilirsin',life:2});return;}
   if((p.ores?.bakir||0)<3||(p.ores?.demir||0)<2){floats.push({x:p.x,y:p.y-25,t:'Kamp ateşi: 3 Bakır + 2 Demir gerekli',life:2});return;}
   p.ores.bakir-=3;p.ores.demir-=2;
   campfires.push({x:p.x+Math.cos(p.ang||0)*42,y:p.y+Math.sin(p.ang||0)*42,tick:0});
@@ -776,7 +780,7 @@ function kay(){
   if(sv>=90&&!(p.slide>0)&&!(p.slideCd>0)){const b=Math.min(sv*SLIDE_BOOST,290);p.vx*=b/sv;p.vy*=b/sv;p.slide=1.8;p.slideId=(p.slideId||0)+1;p.slideCd=.5;shake=Math.max(shake,3);soundFx('melee')}
 }
 function update(dt){
-  for(const f of campfires){f.tick=(f.tick||0)-dt;if(f.tick<=0){f.tick=1;if(Math.hypot(p.x-f.x,p.y-f.y)<=300&&p.hp>0)p.hp=Math.min(p.maxHp,p.hp+.1);}}
+  for(const f of campfires){f.tick=(f.tick||0)-dt;if(f.tick<=0){f.tick=2;if(Math.hypot(p.x-f.x,p.y-f.y)<=300&&p.hp>0)p.hp=Math.min(p.maxHp,p.hp+1);}}
 
   if(p.criticalRegen>0){
     const jackpotRate=criticalRegenRate();
@@ -793,7 +797,7 @@ function update(dt){
   if(p.hunger<25)speedMul*=0.75;
   if(p.sleep<20)speedMul*=0.8;
   const sp=(run?210:130)*speedMul;
-  p.stam=Math.max(0,Math.min(100,p.stam+(run?-30:18*gearStat('staminaRegen'))*dt));
+  p.stam=Math.max(0,Math.min(maxStamina(),p.stam+(run?-30:18*gearStat('staminaRegen'))*dt));
   if(p.slideBlend==null){p.vx=p.vx||0;p.vy=p.vy||0;p.slide=0;p.slideCd=0;p.dustT=0;p.skidT=0;p.slideBlend=0;dust=[];skids=[]}
   p.slideCd=Math.max(0,p.slideCd-dt);
   {
@@ -1439,11 +1443,11 @@ function hud(){
   const ys=yakinYapi();
   if(ys&&!buildMode){const o=ys.o,l=o.level||1;cx.textAlign='center';cx.font='bold 12px Georgia';cx.fillStyle='#fff1b8';cx.fillText(l>=STRUCT[ys.k].max?'Lv.'+l+' (MAKS)':'F: Yükselt $'+fmtPara(upgPrice(ys.k,l)),o.x-camera.x,o.y-camera.y-30)}
   const removable=yakinKaldirilabilirYapi();
-  if(removable&&!buildMode){cx.textAlign='center';cx.font='bold 11px Georgia';cx.fillStyle='#b8d86b';cx.fillText('G: Kaldır +$'+fmtPara(removable.o.invested||15),removable.o.x-camera.x,removable.o.y-camera.y+34)}
+  if(removable&&!buildMode){cx.textAlign='center';cx.font='bold 11px Georgia';cx.fillStyle='#b8d86b';const removeText=removable.type==='campfire'?'G: Kaldır (+3 Bakır +2 Demir)':'G: Kaldır +$'+fmtPara(removable.type==='wall'?(removable.o.invested||15):Math.max(0,(removable.o.invested||0)-(STRUCT[removable.type]?.base||0)));cx.fillText(removeText,removable.o.x-camera.x,removable.o.y-camera.y+34)}
   // sol üst: durum çubukları
   const bars=[
     ['CAN '+Math.ceil(p.hp)+'/'+mx,p.hp,mx,hpR<.25?'#e0554a':hpR<.5?'#e0953a':'#6fbf5a'],
-    ['DAYANIKLILIK',p.stam,100,'#5aa0d8'],
+    ['DAYANIKLILIK',p.stam,maxStamina(),'#5aa0d8'],
     [p.fedTimer>0?'TOK '+Math.ceil(p.fedTimer)+' sn':'AÇLIK',p.hunger,100,p.fedTimer>0?'#79c96b':p.hunger<25?'#e0554a':'#c9a14c'],
     ['UYKU',p.sleep,100,p.sleep<20?'#e0554a':'#8a7fd1']
   ];
@@ -1631,6 +1635,7 @@ function loadGame(){
     ammoMachines=Array.isArray(d.ammoMachines)?d.ammoMachines:[];
     healers=Array.isArray(d.healers)?d.healers:[];
     beds=Array.isArray(d.beds)?d.beds:[];
+    campfires=Array.isArray(d.campfires)?d.campfires.slice(0,1):[];
     waypoints=Array.isArray(d.waypoints)?d.waypoints.filter(w=>Number.isFinite(w.x)&&Number.isFinite(w.y)).slice(0,1):[];
     if(Array.isArray(d.chunks))chunks=new Map(d.chunks);
     boss=zs.find(z=>z.isBoss)||d.boss||null;
@@ -1780,6 +1785,7 @@ function accessoryDescription(id){
   }
   if(id==='medic')return 'İyileşme miktarı +%'+Math.round((accessoryValue(id,'heal')-1)*100)+' artar.';
   if(id==='adrenaline')return 'Dayanıklılık yenilenmesi +%'+Math.round((accessoryValue(id,'staminaRegen')-1)*100)+' artar.';
+  if(id==='gasCanister'||id==='waterBottle')return 'Maksimum dayanıklılık +%'+Math.round((accessoryValue(id,'staminaCapacity')-1)*100)+' artar.';
   if(id==='clot')return 'Kanama birikimi %'+Math.round((1-accessoryValue(id,'bleedResist'))*100)+' azalır.';
   if(id==='ammoBelt')return 'Toplanan cephane x'+accessoryValue(id,'ammoPickup').toFixed(2)+' olur.';
   if(id==='brawler')return 'Yakın dövüş saldırı aralığı %'+Math.round((1-accessoryValue(id,'meleeRate'))*100)+' azalır.';
@@ -1795,6 +1801,7 @@ function accessoryDescription(id){
   if(id==='magneticHarness')return 'Toplama menzili x'+accessoryValue(id,'pickup').toFixed(2)+', normal ganimet +%'+Math.round(accessoryValue(id,'supplyDrop')*100)+'.';
   return a?.desc||'';
 }
+function maxStamina(){return 100*gearStat('staminaCapacity')}
 function accessoryValue(id,key){
   const a=ACCESSORIES[id];if(!a||a[key]==null)return 0;
   const lv=accessoryLevel(id),extra=lv-1;
@@ -1809,6 +1816,7 @@ function accessoryValue(id,key){
   if(key==='supplyDrop')return .15+.05*extra; // Lv.1 +%15, her ek seviye +%5
   if(key==='heal')return 1.20+.10*extra;
   if(key==='staminaRegen')return 1.25+.10*extra;
+  if(key==='staminaCapacity')return 1.10+.05*extra;
   if(key==='bleedResist')return Math.max(.35,.75-.08*extra);
   if(key==='ammoPickup')return 1.25+.10*extra;
   if(key==='meleeRate')return Math.max(.62,.88-.04*extra);
@@ -1876,7 +1884,7 @@ function enerjiIc(){
 }
 function yakinKaldirilabilirYapi(){
   let best=null,bd=58;
-  for(const [type,list] of [['wall',walls],['turret',turrets],['ammo',ammoMachines],['heal',healers]]){
+  for(const [type,list] of [['wall',walls],['turret',turrets.filter(t=>t.kind!=='missile')],['missile',turrets.filter(t=>t.kind==='missile')],['ammo',ammoMachines],['heal',healers],['campfire',campfires]]){
     for(const o of list){const d=Math.hypot(o.x-p.x,o.y-p.y);if(d<bd){bd=d;best={type,o,d}}}
   }
   return best;
@@ -1885,11 +1893,24 @@ function kaldirYapi(){
   const found=yakinKaldirilabilirYapi();
   if(!found)return false;
   const {type,o}=found;
-  const lists={wall:walls,turret:turrets,ammo:ammoMachines,heal:healers};
+  if(type==='campfire'){
+    const idx=campfires.indexOf(o);if(idx<0)return false;
+    campfires.splice(idx,1);
+    p.ores=p.ores||{bakir:0,demir:0,gumus:0,altin:0};
+    p.ores.bakir=(p.ores.bakir||0)+3;p.ores.demir=(p.ores.demir||0)+2;
+    floats.push({x:o.x,y:o.y-20,t:'KAMP ATEŞİ KALDIRILDI: +3 BAKIR +2 DEMİR',life:2});
+    soundFx('build');burst(o.x,o.y,12,'#b8d86b');return true;
+  }
+  const lists={wall:walls,turret:turrets,missile:turrets,ammo:ammoMachines,heal:healers};
   const list=lists[type],idx=list.indexOf(o);
   if(idx<0)return false;
   list.splice(idx,1);
-  const refund=Math.max(0,Math.round(o.invested|| (type==='wall'?15:type==='heal'?STRUCT.heal.base:type==='ammo'?STRUCT.ammo.base:STRUCT.turret.base)));
+  const structKey=type==='turret'&&o.kind==='missile'?'missile':type;
+  const base=type==='wall'?15:(STRUCT[structKey]?.base||0);
+  const level=Math.max(1,o.level||1);
+  const invested=Number.isFinite(o.invested)?o.invested:base+(level-1)*(STRUCT[structKey]?upgPrice(structKey,level-1):0);
+  // Yapıyı kaldırırken ana kurulum bedeli iade edilmez; yalnızca yükseltmelere harcanan para döner.
+  const refund=type==='wall'?Math.max(0,Math.round(invested)):Math.max(0,Math.round(invested-base));
   const odeme=Math.round(refund*(cheats.moneyMultiplier||1));p.money+=odeme;
   floats.push({x:o.x,y:o.y-20,t:'YAPI KALDIRILDI +$'+fmtPara(odeme),life:1.8});
   soundFx('build');burst(o.x,o.y,12,'#b8d86b');
@@ -2200,7 +2221,7 @@ function renderShop(){
   h+='<div class="sh-alt">Elinde: <b>'+w.ad+'</b>'+(w.melee?'':'  |  '+(cheats.inf?'∞':g.ammo)+' / '+g.res)+'</div>';
   h+='<input id="shopSearch" type="search" value="'+String(shopSearch||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')+'" placeholder="Silah, ekipman veya yapı ara..." style="width:min(940px,96vw);box-sizing:border-box;padding:11px 14px;margin:5px 0 12px;background:#101812;color:#e4edda;border:1px solid #526448;border-radius:7px;font:16px Georgia">';
   const T=[['hepsi','Hepsi'],['yakin','Yakın dövüş'],['ates','Ateşli'],['malzeme','Malzeme']];
-  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;padding:10px;background:#172219;border:1px solid #526448;border-radius:7px"><span>⛏️ Cevher: Bakır '+(p.ores?.bakir||0)+' · Demir '+(p.ores?.demir||0)+' · Gümüş '+(p.ores?.gumus||0)+' · Altın '+(p.ores?.altin||0)+'</span><button data-a="armor" style="margin:0">Zırh üret (mevcut: '+(p.armorTier||0)+'/3)</button><button data-a="campfire" style="margin:0">Kamp ateşi yerleştir</button></div>';
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0;padding:10px;background:#172219;border:1px solid #526448;border-radius:7px"><span>⛏️ Cevher: Bakır '+(p.ores?.bakir||0)+' · Demir '+(p.ores?.demir||0)+' · Gümüş '+(p.ores?.gumus||0)+' · Altın '+(p.ores?.altin||0)+'</span><button data-a="armor" style="margin:0">Zırh üret (mevcut: '+(p.armorTier||0)+'/3)</button><button data-a="campfire" style="margin:0"'+(campfires.length?' disabled':'')+'>'+(campfires.length?'Kamp ateşi zaten kurulu':'Kamp ateşi yerleştir')+'</button></div>';
   h+='<div class="sh-tab">'+T.map(t=>'<button data-a="tab" data-t="'+t[0]+'" class="'+(shopTab==t[0]?'on':'')+'">'+t[1]+'</button>').join('')+'</div>';
   h+='<div class="sh-grid">';
   if(shopTab!='malzeme'){
@@ -2486,7 +2507,7 @@ function komut(raw){
       if(Number.isFinite(n)&&n>0){
         p.baseMaxHp=Math.min(9999,n);refreshGearStats();p.hp=p.maxHp;
         konYaz('Maksimum can ayarlandı: '+p.maxHp,yeşil);
-      }else{p.hp=p.maxHp;p.stam=100;p.hunger=100;p.sleep=100;p.bleed=0;konYaz('Can, açlık, uyku doldu',yeşil)}
+      }else{p.hp=p.maxHp;p.stam=maxStamina();p.hunger=100;p.sleep=100;p.bleed=0;konYaz('Can, açlık, uyku doldu',yeşil)}
       break;
     case 'giveall':case 'tumsilahlar':
       WEAPONS.forEach((w,i)=>{const g=p.guns[i];if(!g.own){g.own=true;g.ammo=w.mag;g.res=w.mag*3}});
@@ -2563,7 +2584,7 @@ const CHEATS=[
   {ad:'God modu',ac:'Zombilerden ve patlamalardan hasar almazsın.',t:'t',get:()=>cheats.god,set:v=>cheats.god=v},
   {ad:'Hız çarpanı',ac:'Hareket hızı. 1 = normal, en fazla 10.',t:'n',min:.1,max:10,step:.1,get:()=>cheats.speedMultiplier,set:v=>cheats.speedMultiplier=v},
   {ad:'Maksimum can',ac:'Temel maksimum canı ayarlar ve canı doldurur.',t:'n',min:10,max:9999,step:10,get:()=>p.baseMaxHp,set:v=>{p.baseMaxHp=v;refreshGearStats();p.hp=p.maxHp}},
-  {ad:'Canı doldur',ac:'Can, dayanıklılık, açlık ve uykuyu doldurur.',t:'b',fn:()=>{p.hp=p.maxHp;p.stam=100;p.hunger=100;p.sleep=100;p.bleed=0}},
+  {ad:'Canı doldur',ac:'Can, dayanıklılık, açlık ve uykuyu doldurur.',t:'b',fn:()=>{p.hp=p.maxHp;p.stam=maxStamina();p.hunger=100;p.sleep=100;p.bleed=0}},
   {ad:'Aksesuar kapasitesi',ac:'Her kullanımda +15 (başlangıç 20, en fazla 35).',t:'b',lbl:()=>'+15  ('+p.accCap+'/35)',fn:()=>komut('aksesuar')}
  ]],
  ['Silahlar',[
