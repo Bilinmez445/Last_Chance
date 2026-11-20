@@ -1202,7 +1202,7 @@ function openNearbyChest(){
     if(Math.random()<.75){p.hunger=Math.min(100,p.hunger+25+Math.round(Math.random()*20));rewards.push('ERZAK')}
     if(Math.random()<.4){p.energy=(p.energy||0)+1;rewards.push('ENERJİ İÇECEĞİ')}
     if(Math.random()<.55){const scrap=15+Math.floor(Math.random()*31);p.scrap+=scrap;rewards.push('+'+scrap+' HURDA')}
-    if(Math.random()<.15){items.push({x:target.x+24,y:target.y-8,t:'sukunaFinger',life:60});rewards.push('PARMAK: FINGER OF KING OF CURSES')}
+    // Meguna is exclusive to the Developer build.
     floats.push({x:p.x,y:p.y-34,t:'DESTEK: '+rewards.join(' · '),life:3});
     supportChest=null;supportTimer=150;
   }else{
@@ -1666,12 +1666,6 @@ function triggerSukunaIntro(){
       else if(it.t=='med'){if(p.hp<25)criticalRegenTrigger();p.hp=Math.min(p.maxHp,p.hp+25*gearStat('heal'));p.bleed=0;p.hunger=Math.min(100,p.hunger+12)}
       else if(it.t=='food'){p.hunger=Math.min(100,p.hunger+45);floats.push({x:p.x,y:p.y-18,t:'+Açlık',life:1.1})}
       else if(it.t=='fruit'){p.fedTimer=60;floats.push({x:p.x,y:p.y-20,t:'TOK • 60 SN',life:1.6});soundFx('buy')}
-      else if(it.t==='sukunaFinger'){
-        if(!p.sukunaForm){startSukunaThemeFromGesture();triggerSukunaIntro();p.sukunaForm=true;p.sukunaCleaveCd=0;p.reload=0;p.cd=0;p.g=0;for(const g of p.guns)if(g)g.reload=0;
-          floats.push({x:p.x,y:p.y-42,t:'MEGUNA AWAKENED • CURSED ENERGY RELEASED',life:3.8});
-          burst(p.x,p.y,55,'#e04b68');rings.push({x:p.x,y:p.y,r:120,life:.9});shake=Math.max(shake,10);soundFx('explosion');
-        }
-      }
       else if(it.t=='scrap'){
         const v=Math.max(1,Math.round((it.value||5)*(cheats.scrapMult||1)));p.scrap+=v;
         floats.push({x:p.x,y:p.y-18,t:'HURDA METAL +'+fmtPara(v),life:1.3});
@@ -2358,7 +2352,7 @@ function loadGame(rawOverride=null){
     if(!d||d.version!==3||!d.p||!Array.isArray(d.zs))throw new Error('Kayıt dosyası uyumsuz');
     Z=ZORLUK[d.difficulty]||ZORLUK.normal;
     reset();
-    p={...d.p,lockTarget:null,parryReadyAt:0,ores:d.p.ores||{bakir:0,demir:0,gumus:0,altin:0},armorTier:d.p.armorTier||0};
+    p={...d.p,lockTarget:null,parryReadyAt:0,sukunaForm:false,fugaCharge:0,ores:d.p.ores||{bakir:0,demir:0,gumus:0,altin:0},armorTier:d.p.armorTier||0};
     if(p.sharedWeaponUpgrades){ // eski kayıt: ortak geliştirmeler iade edilir, silah başına yeniden alınır
       let refund=0;for(const k of['upDmg','upRate','upMag','upReload'])for(let l=0,n=p.sharedWeaponUpgrades[k]||0;l<n;l++)refund+=Math.round(5+80*.015+l*3.5);
       if(refund>0){p.scrap=(p.scrap||0)+refund;setTimeout(()=>{if(running)floats.push({x:p.x,y:p.y-40,t:'Eski ortak geliştirmeler iade edildi: +'+refund+' HURDA',life:3})},500)}
@@ -2371,7 +2365,7 @@ function loadGame(rawOverride=null){
     } // Eski kayıtlarda eksik olan silah yuvaları, Desert Eagle dahil, güvenli biçimde eklenir.
     zs=Array.isArray(d.zs)?d.zs.map(z=>({...z,parryHitTargets:[]})):[];
     bs=Array.isArray(d.bs)?d.bs.map(b=>({...b,vurdu:[]})):[];
-    items=Array.isArray(d.items)?d.items:[];
+    items=Array.isArray(d.items)?d.items.filter(it=>it&&it.t!=='sukunaFinger'&&!it.bhHeld):[];
     lootChests=Array.isArray(d.lootChests)?d.lootChests:[];supportChest=d.supportChest||null;supportTimer=Number.isFinite(d.supportTimer)?d.supportTimer:150;lootSpawnTimer=Number.isFinite(d.lootSpawnTimer)?d.lootSpawnTimer:0;
     devices=Array.isArray(d.devices)?d.devices:[];
     zones=Array.isArray(d.zones)?d.zones:[];
@@ -3739,7 +3733,7 @@ function renderSkins(){
   h+='</div><button data-a="kapat" class="sh-kapat">Oyuna dön (H)</button>';
   shopEl.innerHTML=h;
 }
-function openShop(){if(!running)return;shopOpen=true;mouse.down=false;if(p){p.laserBeam=null;p.laserTarget=null}renderShop();shopEl.style.display='flex'}
+function openShop(){if(!running)return;mouse.down=false;for(const k in keys)keys[k]=false;shopOpen=true;if(p){p.laserBeam=null;p.laserTarget=null}renderShop();shopEl.style.display='flex'}
 function closeShop(){shopOpen=false;skinMode=false;shopEl.style.display='none'}
 const equipEl=document.getElementById('equip');
 function openEquip(){
@@ -4277,7 +4271,6 @@ function renderShop(){
       '<button data-a="wup" data-stat="spec"'+(spLv>=spMax||p.scrap<spPrice?' disabled':'')+'>Özel geliştirme</button>');
   }else if(shopTab==='malzeme'||p.sukunaForm){
     h+='<div style="grid-column:1/-1;color:#b8d86b;padding:12px;border:1px solid #526448;border-radius:7px">'+(p.sukunaForm?'Sukuna formunda silah kullanamazsın. ':'')+'Silahlar dünyadaki sandıklardan bulunur. Mermi, can ve erzak Destek Sandıklarından çıkar.</div>';
-    h+='<div class="sh-kart" style="--renk:#d94b70"><div class="sh-bas"><b>Sukuna\'s Finger</b><em>Özel eşya</em></div><div class="sh-shema">'+sukunaFingerSema()+'</div><p>Lanetli parmak. Satın alındığında yakınına düşer; yanına gidip F ile alarak Sukuna formuna geçersin.</p><div class="sh-alt2"><span class="sh-fiyat">$12.000</span><button data-a="buyfinger"'+(p.money<12000||p.sukunaForm?' disabled':'')+'>Satın al</button></div></div>';
     h+=mkart('Taşınabilir Yatak','Malzeme','Yere yerleştir. Yanına gidip F ile dinlen, uykunu doldur.',80,'#8a7ab0','<button data-a="bed"'+(p.money<80?' disabled':'')+'>Yerleştir</button>');
     h+=mkart('Duvar','Savunma','Oyuncunun önüne 100 dayanıklılıklı duvar kur. R ile yön değiştir. Duvarlar ızgaraya oturur ve birbirine bağlanır; M1 tuşunu basılı tutarak sürekli döşeyebilirsin.',15,'#8fa68a','<button data-a="duvar"'+(p.money<15?' disabled':'')+'>Yerleştir</button>');
     for(const k of ['turret','missile','mortar','ammo','heal']){
@@ -4323,14 +4316,6 @@ shopEl.addEventListener('click',e=>{
   if(a=='skineq'||a=='skinoff'){skinAction(a,b.dataset.k);renderShop();return}
   if(a=='armor'){craftArmor();renderShop();return}
   if(a=='campfire'){placeCampfire();renderShop();return}
-  if(a==='buyfinger'){
-    if(p.money>=12000&&!p.sukunaForm){
-      p.money-=12000;
-      items.push({x:p.x+Math.cos(p.ang||0)*34,y:p.y+Math.sin(p.ang||0)*34,t:'sukunaFinger',life:60});
-      soundFx('buy');floats.push({x:p.x,y:p.y-28,t:'SUKUNA’S FINGER SATIN ALINDI • F İLE AL',life:2.2});
-    }
-    renderShop();return;
-  }
   if(a==='hoe'){if(!p.hoeOwned&&p.money>=120){p.money-=120;p.hoeOwned=true;soundFx('buy');floats.push({x:p.x,y:p.y-22,t:'ÇAPA ALINDI • TARIM ALETİ',life:1.5});}renderShop();return}
   if(a=='seed'){if(p.money>=45){p.money-=45;p.seeds=(p.seeds||0)+3;soundFx('buy');floats.push({x:p.x,y:p.y-22,t:'3 TOHUM ALINDI',life:1.3});}renderShop();return}
   if(a=='woodwall'){if((p.wood||0)>=5){beginBuild('woodWall',5);buildMode.currency='wood';}return}
@@ -4800,6 +4785,7 @@ document.getElementById('wp').addEventListener('click',()=>createWaypoint());
 
 addEventListener('keydown',e=>{
   const k=keyToken(e);
+  if(running&&!e.repeat&&(k==='v'||e.code==='KeyV')){e.preventDefault();if(shopOpen)closeShop();else openShop();return;}
   if((e.key||'').toLowerCase()==='m'&&!e.repeat&&running&&!konOpen&&!equipOpen){
     e.preventDefault();
     if(settingsOpen){closeSettings();return;}
@@ -4836,7 +4822,7 @@ addEventListener('keydown',e=>{
   if(running&&!shopOpen&&!e.repeat&&k=='n')gadgetAt('molotov');
   if(running&&!shopOpen&&!e.repeat&&k=='j')gadgetAt('c4');
   if(running&&!e.repeat&&k=='escape'&&buildMode){cancelBuild();return;}
-  if(running&&!e.repeat&&(k=='v'||(k=='escape'&&shopOpen)))shopOpen?closeShop():openShop();
+  if(running&&!e.repeat&&k=='escape'&&shopOpen)closeShop();
   if(running&&!shopOpen&&!e.repeat&&k=='l'){openEquip();return;}
   if(running&&!shopOpen&&!e.repeat&&k=='m'){openSettings();return;}
   if(running&&!shopOpen&&k=='f'){
